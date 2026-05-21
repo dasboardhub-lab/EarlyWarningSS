@@ -5,134 +5,218 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Analisis Paket Gantung</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .chevron { transition: transform 0.2s }
-        .expanded .chevron { transform: rotate(90deg) }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .chevron { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .expanded .chevron { transform: rotate(90deg); }
         .fop-cell { min-width: 80px; text-align: center; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        tbody tr { transition: background-color 0.15s ease; }
     </style>
 </head>
-<body class="bg-gray-50 p-3 md:p-8 font-sans text-gray-800 min-h-screen relative">
-    <div class="max-w-6xl mx-auto space-y-4 md:space-y-6">
+<body class="bg-[#f8fafc] p-4 md:p-8 text-slate-800 min-h-screen relative selection:bg-blue-100 selection:text-blue-900">
+    <div class="max-w-[90rem] mx-auto space-y-6">
         
-        <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Dashboard Analisis Paket Gantung</h1>
-                <p class="text-gray-500 mt-1">Unggah data dan bagikan info ke tim lapangan</p>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition-all">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                    <i class="ph ph-package text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Analisis Paket Gantung</h1>
+                    <p class="text-slate-500 text-sm mt-0.5">Pemantauan & pelaporan harian status resi</p>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="openSettings()" class="p-2.5 text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="Pengaturan">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <button onclick="openSettings()" class="flex-1 md:flex-none p-3 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all outline-none flex justify-center items-center" title="Pengaturan">
+                    <i class="ph ph-gear text-xl"></i>
                 </button>
-                <label class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg cursor-pointer transition-colors whitespace-nowrap shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span class="font-medium">Unggah Data</span>
+                <button onclick="copyAllDatabaseReport()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl cursor-pointer transition-all shadow-sm shadow-emerald-600/20" title="Salin Semua Data Database">
+                    <i class="ph ph-database text-lg"></i>
+                    <span class="font-semibold text-sm">Salin Database</span>
+                </button>
+                <label class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl cursor-pointer transition-all shadow-sm shadow-blue-600/20">
+                    <i class="ph ph-upload-simple text-lg"></i>
+                    <span class="font-semibold text-sm">Unggah CSV</span>
                     <input type="file" accept=".csv" class="hidden" id="fileUpload" />
                 </label>
             </div>
         </div>
 
-        <div id="emptyState" class="bg-white p-12 rounded-xl shadow-sm border border-gray-100 text-center block">
-            <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Data</h3>
-            <p class="text-gray-500">Silakan unggah file CSV Anda menggunakan tombol di atas untuk memulai analisis.</p>
+        <div id="uploadProgress" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex-col gap-3">
+             <div class="flex justify-between items-center text-sm font-semibold text-slate-700">
+                <div class="flex items-center gap-2">
+                    <i class="ph ph-cloud-arrow-up text-blue-500 text-lg"></i>
+                    <span>Sinkronisasi ke Database...</span>
+                </div>
+                <span id="uploadPercentage" class="text-blue-600 font-mono">0%</span>
+             </div>
+             <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+               <div id="uploadProgressBar" class="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+             </div>
         </div>
 
-        <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
-            <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="p-3 bg-blue-50 text-blue-600 rounded-lg shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        <div id="emptyState" class="bg-white p-16 rounded-2xl shadow-sm border border-slate-100 text-center block">
+            <div class="w-20 h-20 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-0 transition-transform duration-300">
+                <i class="ph ph-file-csv text-4xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Belum Ada Data</h3>
+            <p class="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">Silakan unggah laporan harian berformat CSV menggunakan tombol di kanan atas untuk memulai analisis.</p>
+        </div>
+
+        <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 hidden">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="p-3.5 bg-blue-50 text-blue-600 rounded-xl shrink-0">
+                    <i class="ph ph-stack text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 font-medium">Total Paket Gantung</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalPaket">0</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Paket</p>
+                    <p class="text-2xl font-bold text-slate-900" id="totalPaket">0</p>
                 </div>
             </div>
-            <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="p-3 bg-orange-50 text-orange-600 rounded-lg shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="p-3.5 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
+                    <i class="ph ph-buildings text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 font-medium">Total Hub Destinasi</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalHub">0</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total HUB</p>
+                    <p class="text-2xl font-bold text-slate-900" id="totalHub">0</p>
                 </div>
             </div>
-            <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center gap-3">
-                <p class="text-sm text-gray-500 font-medium">Tabel Ringkasan COD</p>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center gap-2">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status COD</p>
                 <div class="w-full text-sm">
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                        <span class="font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded">COD YES</span>
-                        <span class="font-bold text-gray-900" id="totalCodYes">0</span>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1.5"><i class="ph-fill ph-check-circle text-xs"></i> YES</span>
+                        <span class="font-bold text-slate-800" id="totalCodYes">0</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="font-semibold text-gray-600 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">COD NO</span>
-                        <span class="font-bold text-gray-900" id="totalCodNo">0</span>
+                        <span class="font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1.5"><i class="ph-fill ph-x-circle text-xs"></i> NO</span>
+                        <span class="font-bold text-slate-800" id="totalCodNo">0</span>
                     </div>
                 </div>
             </div>
-            <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center gap-2">
-                <p class="text-sm text-gray-500 font-medium">Tabel Ringkasan Attempt</p>
-                <div class="w-full text-sm">
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-1 mb-1">
-                        <span class="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Attempt 0</span>
-                        <span class="font-bold text-gray-900" id="totalAtt0">0</span>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center gap-1.5">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status Attempt</p>
+                <div class="w-full text-xs font-medium">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-sky-700 flex items-center gap-1"><i class="ph-fill ph-number-circle-zero"></i> Att 0</span>
+                        <span class="font-bold text-slate-800" id="totalAtt0">0</span>
                     </div>
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-1 mb-1">
-                        <span class="font-semibold text-orange-700 bg-orange-50 px-2 py-0.5 rounded">Attempt 1</span>
-                        <span class="font-bold text-gray-900" id="totalAtt1">0</span>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-amber-600 flex items-center gap-1"><i class="ph-fill ph-number-circle-one"></i> Att 1</span>
+                        <span class="font-bold text-slate-800" id="totalAtt1">0</span>
                     </div>
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-1 mb-1">
-                        <span class="font-semibold text-yellow-700 bg-yellow-50 px-2 py-0.5 rounded">Attempt 2</span>
-                        <span class="font-bold text-gray-900" id="totalAtt2">0</span>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-orange-600 flex items-center gap-1"><i class="ph-fill ph-number-circle-two"></i> Att 2</span>
+                        <span class="font-bold text-slate-800" id="totalAtt2">0</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded">Attempt 3+</span>
-                        <span class="font-bold text-gray-900" id="totalAtt3Plus">0</span>
+                        <span class="text-red-600 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Att 3+</span>
+                        <span class="font-bold text-slate-800" id="totalAtt3Plus">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center gap-1.5 border-l-4 border-l-rose-500">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Stuck Opcode (Bukan Hari Ini)</p>
+                <div class="w-full text-xs font-medium">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-rose-700 flex items-center gap-1">Opcode 205</span>
+                        <span class="font-bold text-slate-800" id="totalStuck205">0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-rose-700 flex items-center gap-1">Opcode 54</span>
+                        <span class="font-bold text-slate-800" id="totalStuck54">0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-rose-700 flex items-center gap-1">Opcode 57</span>
+                        <span class="font-bold text-slate-800" id="totalStuck57">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-rose-700 flex items-center gap-1">Opcode 70</span>
+                        <span class="font-bold text-slate-800" id="totalStuck70">0</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="listContainer" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden">
-            <div class="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row justify-between gap-3">
-                <div class="flex gap-2 overflow-x-auto">
-                    <button onclick="switchView('COD')" id="tabCOD" class="px-4 py-2 text-sm font-bold rounded-lg bg-blue-600 text-white shadow-sm transition-colors whitespace-nowrap">Berdasarkan COD</button>
-                    <button onclick="switchView('ATTEMPT')" id="tabATTEMPT" class="px-4 py-2 text-sm font-bold rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap">Berdasarkan Attempt</button>
-                    <button onclick="switchView('FOP')" id="tabFOP" class="px-4 py-2 text-sm font-bold rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap">Berdasarkan FOP</button>
+        <div id="listContainer" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div class="flex bg-slate-100/80 p-1 rounded-xl w-full lg:w-auto overflow-x-auto border border-slate-200/60 shadow-inner">
+                    <button onclick="switchView('COD')" id="tabCOD" class="px-5 py-2 text-sm font-semibold rounded-lg bg-white text-slate-800 shadow-sm transition-all whitespace-nowrap flex items-center gap-2"><i class="ph ph-money"></i> COD View</button>
+                    <button onclick="switchView('ATTEMPT')" id="tabATTEMPT" class="px-5 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition-all whitespace-nowrap flex items-center gap-2"><i class="ph ph-arrows-clockwise"></i> Attempt View</button>
+                    <button onclick="switchView('FOP')" id="tabFOP" class="px-5 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition-all whitespace-nowrap flex items-center gap-2"><i class="ph ph-qr-code"></i> FOP View</button>
+                    <button onclick="switchView('STUCK')" id="tabSTUCK" class="px-5 py-2 text-sm font-semibold rounded-lg text-rose-500 hover:text-rose-700 transition-all whitespace-nowrap flex items-center gap-2"><i class="ph ph-warning-circle"></i> Stuck Opcode</button>
                 </div>
-                <button onclick="copyAllReport()" id="btnCopyAll" class="hidden px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm transition-colors items-center justify-center gap-2 whitespace-nowrap">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="iconCopyAll"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                
+                <button onclick="copyAllReport()" id="btnCopyAll" class="hidden px-5 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-xl shadow-sm shadow-red-500/20 transition-all items-center justify-center gap-2 whitespace-nowrap w-full lg:w-auto">
+                    <i class="ph ph-copy-simple text-lg" id="iconCopyAll"></i>
                     <span>Salin Laporan ATT 3+</span>
                 </button>
             </div>
-            <div class="overflow-x-auto max-h-[70vh] shadow-inner w-full">
-                <table class="w-full text-left border-collapse min-w-[600px]">
-                    <thead id="tableHead" class="sticky top-0 z-10 bg-gray-50 shadow-sm">
+
+            <div class="overflow-x-auto max-h-[65vh] w-full">
+                <table class="w-full text-left border-collapse min-w-[900px]">
+                    <thead id="tableHead" class="sticky top-0 z-20 bg-slate-50 shadow-sm border-b border-slate-200">
                     </thead>
-                    <tbody id="tableBody" class="text-sm text-gray-800 divide-y divide-gray-100">
+                    <tbody id="tableBody" class="text-sm text-slate-700 divide-y divide-slate-100">
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="settingsModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-3 md:p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
-            <div class="p-4 md:p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="font-bold text-lg text-gray-900">Pengaturan Filter</h3>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <div id="settingsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-opacity opacity-0" style="opacity: 1;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col scale-95 transition-transform" id="settingsModalContent" style="transform: scale(1);">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-gear text-slate-400 text-xl"></i>
+                    <h3 class="font-bold text-lg text-slate-900">Pengaturan</h3>
+                </div>
+                <button onclick="closeSettings()" class="text-slate-400 hover:text-slate-700 p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="ph ph-x text-xl"></i>
                 </button>
             </div>
-            <div class="p-5">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Kode Destination Hub</label>
-                <p class="text-xs text-gray-500 mb-3">Masukkan kode hub yang ingin ditampilkan (pisahkan dengan koma atau baris baru). Kosongkan jika ingin menampilkan semua hub.</p>
-                <textarea id="hubFilterInput" class="w-full h-32 p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" placeholder="Contoh: CGK, SUB, KNO"></textarea>
+            
+            <div class="p-6 overflow-y-auto max-h-[65vh] bg-slate-50/30">
+                <div class="mb-6">
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-1.5">
+                        <i class="ph ph-funnel text-blue-500"></i> Filter HUB
+                    </label>
+                    <p class="text-xs text-slate-500 mb-3">Tulis 3 digit kode HUB (ex: MKS, CGK). Pisahkan dengan koma. Kosongkan untuk tampil semua.</p>
+                    <textarea id="hubFilterInput" class="w-full h-24 p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none shadow-sm"></textarea>
+                </div>
+                
+                <div class="mb-2">
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-1.5">
+                        <i class="ph ph-database text-emerald-500"></i> Koneksi Supabase
+                    </label>
+                    <p class="text-xs text-slate-500 mb-3">Otomatis kosongkan & insert ke tabel <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700 font-mono">paket_gantung</code>.</p>
+                    <div class="space-y-3 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Project URL</label>
+                            <input type="text" id="supabaseUrlInput" placeholder="https://xyz.supabase.co" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5">API Key (Anon)</label>
+                            <input type="password" id="supabaseKeyInput" placeholder="eyJhbGci..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="p-4 md:p-5 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 md:gap-3 flex-wrap">
-                <button onclick="closeSettings()" class="flex-1 md:flex-none px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">Batal</button>
-                <button onclick="saveSettings()" class="flex-1 md:flex-none px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">Simpan</button>
+            
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3 bg-white">
+                <button onclick="closeSettings()" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-all outline-none">Batal</button>
+                <button onclick="saveSettings()" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm shadow-blue-600/20 transition-all outline-none">Simpan & Terapkan</button>
             </div>
         </div>
     </div>
@@ -141,28 +225,52 @@
         window.dashboardData = [];
         window.rawParsedData = [];
         window.allUniqueFops = [];
-        let allowedHubs = [];
+        window.stuckOpcodes = ['205', '54', '57', '70'];
         window.currentView = 'COD';
+        
+        let allowedHubs = [];
+        let supabaseUrl = '';
+        let supabaseKey = '';
 
         const savedHubs = localStorage.getItem('allowedHubs');
         if (savedHubs) allowedHubs = JSON.parse(savedHubs);
+        const savedSupaUrl = localStorage.getItem('supabaseUrl');
+        if (savedSupaUrl) supabaseUrl = savedSupaUrl;
+        const savedSupaKey = localStorage.getItem('supabaseKey');
+        if (savedSupaKey) supabaseKey = savedSupaKey;
+
+        const modal = document.getElementById('settingsModal');
+        const modalContent = document.getElementById('settingsModalContent');
 
         window.openSettings = function() {
-            document.getElementById('hubFilterInput').value = allowedHubs.join('\n');
-            document.getElementById('settingsModal').classList.remove('hidden');
-            document.getElementById('settingsModal').classList.add('flex');
+            document.getElementById('hubFilterInput').value = allowedHubs.join(', ');
+            document.getElementById('supabaseUrlInput').value = supabaseUrl;
+            document.getElementById('supabaseKeyInput').value = supabaseKey;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { modal.style.opacity = '1'; modalContent.style.transform = 'scale(1)'; }, 10);
         };
 
         window.closeSettings = function() {
-            document.getElementById('settingsModal').classList.add('hidden');
-            document.getElementById('settingsModal').classList.remove('flex');
+            modal.style.opacity = '0';
+            modalContent.style.transform = 'scale(0.95)';
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
         };
 
         window.saveSettings = function() {
-            const input = document.getElementById('hubFilterInput').value;
-            allowedHubs = input.split(/[\n,]+/).map(h => h.trim()).filter(h => h);
+            const hubInput = document.getElementById('hubFilterInput').value;
+            allowedHubs = hubInput.split(/[\n,]+/).map(h => h.trim().toUpperCase()).filter(h => h);
             localStorage.setItem('allowedHubs', JSON.stringify(allowedHubs));
+
+            const supaUrlInput = document.getElementById('supabaseUrlInput').value.trim();
+            supabaseUrl = supaUrlInput.replace(/\/rest\/v1\/?$/, ''); 
+            localStorage.setItem('supabaseUrl', supabaseUrl);
+
+            supabaseKey = document.getElementById('supabaseKeyInput').value.trim();
+            localStorage.setItem('supabaseKey', supabaseKey);
+
             closeSettings();
+            
             if (window.rawParsedData && window.rawParsedData.length > 0) {
                 processData(window.rawParsedData);
             }
@@ -176,7 +284,6 @@
             reader.onload = function(event) {
                 const text = event.target.result;
                 const lines = text.split('\n');
-                
                 if (lines.length < 2) return;
                 
                 let separator = '|';
@@ -186,11 +293,10 @@
 
                 const headers = lines[0].split(separator).map(h => h.trim());
                 const parsedData = [];
-
                 const excludedFops = ['200', '207', '41', '55', '80'];
 
                 for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim().length === 0) continue;
+                    if (!lines[i].trim()) continue;
                     const values = lines[i].split(separator);
                     const rowObj = {};
                     headers.forEach((h, index) => {
@@ -205,19 +311,115 @@
                 
                 window.rawParsedData = parsedData;
                 processData(parsedData);
+                uploadToSupabase(parsedData);
             };
             reader.readAsText(file);
-            
             e.target.value = '';
         });
 
+        async function uploadToSupabase(data) {
+            if (!supabaseUrl || !supabaseKey) return;
+            
+            const endpoint = `${supabaseUrl}/rest/v1/paket_gantung`;
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadPercentage = document.getElementById('uploadPercentage');
+            const uploadProgressBar = document.getElementById('uploadProgressBar');
+            
+            uploadProgress.classList.remove('hidden');
+            uploadProgress.classList.add('flex');
+            uploadPercentage.innerText = 'Mengosongkan...';
+            
+            try {
+                 await fetch(`${endpoint}?id=gt.0`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+            } catch(e) {
+                 console.error("Gagal mengosongkan tabel", e);
+            }
+
+            const payloadData = data.map(row => ({
+                awb: row.awb_no || row.awb || '',
+                destination_hub: row.destination_uz || row.destination_hub || '',
+                destination_staging: row.destination_staging || '',
+                nik: row.kode_pegawai_internal || row.kode_pegawai_external || row.latest_opcode_nik || '',
+                nama_operator: row.nama_operator_internal || row.nama_operator_external || '',
+                use_cod: row.flag_cod || row.use_cod || '',
+                attempt: row.attempt_70 || '0',
+                fop_code: row.fop_code_internal || ''
+            }));
+
+            const chunkSize = 100;
+            const totalChunks = Math.ceil(payloadData.length / chunkSize);
+
+            for (let i = 0; i < totalChunks; i++) {
+                const chunk = payloadData.slice(i * chunkSize, (i + 1) * chunkSize);
+                try {
+                    await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify(chunk)
+                    });
+                } catch (error) {
+                    console.error('Error supabase:', error);
+                }
+
+                const percent = Math.round(((i + 1) / totalChunks) * 100);
+                uploadPercentage.innerText = `${percent}%`;
+                uploadProgressBar.style.width = `${percent}%`;
+            }
+
+            setTimeout(() => {
+                uploadProgress.classList.add('hidden');
+                uploadProgress.classList.remove('flex');
+                uploadProgressBar.style.width = '0%';
+                uploadPercentage.innerText = '0%';
+            }, 2000);
+        }
+
+        async function copyAllDatabaseReport() {
+            if (!supabaseUrl || !supabaseKey) {
+                alert("Silakan atur koneksi Supabase di Pengaturan terlebih dahulu.");
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${supabaseUrl}/rest/v1/paket_gantung?select=awb`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                
+                if (!res.ok) throw new Error("Gagal mengambil data");
+                const data = await res.json();
+                
+                if (data.length === 0) {
+                    alert("Database kosong.");
+                    return;
+                }
+                
+                const awbs = data.map(d => d.awb).join('\n');
+                executeCopy(`Daftar Semua Resi di Database:\n\n${awbs}`, null, null, null, () => {
+                    alert("Semua resi berhasil disalin dari database.");
+                });
+            } catch (e) {
+                console.error(e);
+                alert("Gagal mengambil data dari database.");
+            }
+        }
+
         function processData(data) {
             if (!data.length) {
-                document.getElementById('emptyState').classList.replace('hidden', 'block');
-                document.getElementById('summaryCards').classList.replace('grid', 'hidden');
-                document.getElementById('listContainer').classList.replace('block', 'hidden');
-                document.querySelector('#emptyState h3').innerText = 'Belum Ada Data';
-                document.querySelector('#emptyState p').innerText = 'Semua data telah difilter atau file CSV kosong.';
+                showEmptyState('Belum Ada Data', 'File CSV kosong atau semua data telah di-filter.');
                 return;
             }
 
@@ -225,138 +427,167 @@
             if (allowedHubs.length > 0) {
                 filteredData = data.filter(row => {
                     const hubVal = row.destination_uz || row.destination_hub || '';
-                    const hub = hubVal.trim().substring(0, 3);
+                    const hub = hubVal.trim().substring(0, 3).toUpperCase();
                     return allowedHubs.includes(hub);
                 });
             }
 
             if (filteredData.length === 0) {
-                document.getElementById('emptyState').classList.replace('hidden', 'block');
-                document.getElementById('summaryCards').classList.replace('grid', 'hidden');
-                document.getElementById('listContainer').classList.replace('block', 'hidden');
-                document.querySelector('#emptyState h3').innerText = 'Data Kosong / Terfilter';
-                document.querySelector('#emptyState p').innerText = 'Tidak ada data dengan kode destination_hub yang sesuai dengan pengaturan filter Anda.';
+                showEmptyState('Data Terfilter Semua', 'Tidak ada data sesuai kode HUB di pengaturan.');
                 return;
             }
 
-            document.querySelector('#emptyState h3').innerText = 'Belum Ada Data';
-            document.querySelector('#emptyState p').innerText = 'Silakan unggah file CSV Anda menggunakan tombol di atas untuk memulai analisis.';
+            let maxDate = '';
+            filteredData.forEach(row => {
+                const sd = (row.time_scan_internal || '').substring(0, 10);
+                if(sd > maxDate) maxDate = sd;
+            });
+            const todayDate = maxDate;
 
-            const hubMap = {};
             const fopSet = new Set();
-            let totalCodYes = 0;
-            let totalCodNo = 0;
-            let totalAtt0 = 0;
-            let totalAtt1 = 0;
-            let totalAtt2 = 0;
-            let totalAtt3Plus = 0;
+            const hubMap = {};
+            
+            let stats = { codYes: 0, codNo: 0, att0: 0, att1: 0, att2: 0, att3Plus: 0, stuck205: 0, stuck54: 0, stuck57: 0, stuck70: 0 };
 
             filteredData.forEach(row => {
-                let hubRaw = row.destination_uz || row.destination_hub || 'Tidak Diketahui';
-                const hub = hubRaw !== 'Tidak Diketahui' ? hubRaw.trim().substring(0, 3) : hubRaw;
-                const staging = row.destination_staging || 'Tidak Diketahui';
-                const nik = row.kode_pegawai_internal || row.kode_pegawai_external || row.latest_opcode_nik || 'Tidak Diketahui';
+                const hubRaw = row.destination_uz || row.destination_hub || 'N/A';
+                const hub = hubRaw !== 'N/A' ? hubRaw.trim().substring(0, 3) : hubRaw;
+                const staging = row.destination_staging || 'N/A';
+                const nik = row.kode_pegawai_internal || row.kode_pegawai_external || row.latest_opcode_nik || 'N/A';
+                const nama = row.nama_operator_internal || 'Tanpa Nama';
+                
                 const codRaw = (row.flag_cod || row.use_cod || '').toString().toUpperCase();
                 const isCod = codRaw === 'YES' || codRaw === '1' || codRaw === 'TRUE';
+                
                 const attVal = parseInt(row.attempt_70) || 0;
                 const awb = row.awb_no || row.awb;
                 const fopCode = row.fop_code_internal || 'N/A';
+                const scanDate = (row.time_scan_internal || '').substring(0, 10);
+                const isStuck = window.stuckOpcodes.includes(fopCode) && scanDate !== '' && scanDate !== todayDate;
 
-                fopSet.add(fopCode);
+                if (fopCode !== 'N/A') fopSet.add(fopCode);
 
-                if (isCod) totalCodYes++; else totalCodNo++;
-                if (attVal === 0) totalAtt0++; else if (attVal === 1) totalAtt1++; else if (attVal === 2) totalAtt2++; else totalAtt3Plus++;
-
-                if (!hubMap[hub]) hubMap[hub] = { name: hub, count: 0, countYes: 0, countNo: 0, countAtt0: 0, countAtt1: 0, countAtt2: 0, countAtt3Plus: 0, fops: {}, stagings: {} };
-                hubMap[hub].count++;
-                isCod ? hubMap[hub].countYes++ : hubMap[hub].countNo++;
-                if (attVal === 0) hubMap[hub].countAtt0++; else if (attVal === 1) hubMap[hub].countAtt1++; else if (attVal === 2) hubMap[hub].countAtt2++; else hubMap[hub].countAtt3Plus++;
-                if (!hubMap[hub].fops[fopCode]) hubMap[hub].fops[fopCode] = { count: 0, awbs: [] };
-                hubMap[hub].fops[fopCode].count++;
-                if (awb) hubMap[hub].fops[fopCode].awbs.push(awb);
-
-                if (!hubMap[hub].stagings[staging]) hubMap[hub].stagings[staging] = { name: staging, count: 0, countYes: 0, countNo: 0, countAtt0: 0, countAtt1: 0, countAtt2: 0, countAtt3Plus: 0, fops: {}, niks: {} };
-                hubMap[hub].stagings[staging].count++;
-                isCod ? hubMap[hub].stagings[staging].countYes++ : hubMap[hub].stagings[staging].countNo++;
-                if (attVal === 0) hubMap[hub].stagings[staging].countAtt0++; else if (attVal === 1) hubMap[hub].stagings[staging].countAtt1++; else if (attVal === 2) hubMap[hub].stagings[staging].countAtt2++; else hubMap[hub].stagings[staging].countAtt3Plus++;
-                if (!hubMap[hub].stagings[staging].fops[fopCode]) hubMap[hub].stagings[staging].fops[fopCode] = { count: 0, awbs: [] };
-                hubMap[hub].stagings[staging].fops[fopCode].count++;
-                if (awb) hubMap[hub].stagings[staging].fops[fopCode].awbs.push(awb);
-
-                if (!hubMap[hub].stagings[staging].niks[nik]) {
-                    hubMap[hub].stagings[staging].niks[nik] = { name: nik, count: 0, codYes: { count: 0, awbs: [] }, codNo: { count: 0, awbs: [] }, att0: { count: 0, awbs: [] }, att1: { count: 0, awbs: [] }, att2: { count: 0, awbs: [] }, att3Plus: { count: 0, awbs: [] }, fops: {} };
+                if (isCod) stats.codYes++; else stats.codNo++;
+                if (attVal === 0) stats.att0++; else if (attVal === 1) stats.att1++; else if (attVal === 2) stats.att2++; else stats.att3Plus++;
+                if (isStuck) {
+                    if(fopCode === '205') stats.stuck205++;
+                    if(fopCode === '54') stats.stuck54++;
+                    if(fopCode === '57') stats.stuck57++;
+                    if(fopCode === '70') stats.stuck70++;
                 }
-                hubMap[hub].stagings[staging].niks[nik].count++;
+
+                if (!hubMap[hub]) hubMap[hub] = { name: hub, count: 0, countCodYes: 0, countCodNo: 0, countAtt0: 0, countAtt1: 0, countAtt2: 0, countAtt3Plus: 0, fops: {}, stuck: {'205':0, '54':0, '57':0, '70':0}, countStuckTotal: 0, stagings: {} };
                 
-                if (isCod) {
-                    hubMap[hub].stagings[staging].niks[nik].codYes.count++;
-                    if (awb) hubMap[hub].stagings[staging].niks[nik].codYes.awbs.push(awb);
-                } else {
-                    hubMap[hub].stagings[staging].niks[nik].codNo.count++;
-                    if (awb) hubMap[hub].stagings[staging].niks[nik].codNo.awbs.push(awb);
+                hubMap[hub].count++;
+                isCod ? hubMap[hub].countCodYes++ : hubMap[hub].countCodNo++;
+                if (attVal === 0) hubMap[hub].countAtt0++; else if (attVal === 1) hubMap[hub].countAtt1++; else if (attVal === 2) hubMap[hub].countAtt2++; else hubMap[hub].countAtt3Plus++;
+                if (fopCode !== 'N/A') {
+                    if (!hubMap[hub].fops[fopCode]) hubMap[hub].fops[fopCode] = { count: 0 };
+                    hubMap[hub].fops[fopCode].count++;
+                }
+                if (isStuck) {
+                    hubMap[hub].countStuckTotal++;
+                    hubMap[hub].stuck[fopCode]++;
                 }
 
-                if (attVal === 0) {
-                    hubMap[hub].stagings[staging].niks[nik].att0.count++;
-                    if (awb) hubMap[hub].stagings[staging].niks[nik].att0.awbs.push(awb);
-                } else if (attVal === 1) {
-                    hubMap[hub].stagings[staging].niks[nik].att1.count++;
-                    if (awb) hubMap[hub].stagings[staging].niks[nik].att1.awbs.push(awb);
-                } else if (attVal === 2) {
-                    hubMap[hub].stagings[staging].niks[nik].att2.count++;
-                    if (awb) hubMap[hub].stagings[staging].niks[nik].att2.awbs.push(awb);
-                } else {
-                    hubMap[hub].stagings[staging].niks[nik].att3Plus.count++;
-                    if (awb) hubMap[hub].stagings[staging].niks[nik].att3Plus.awbs.push(awb);
+                if (!hubMap[hub].stagings[staging]) hubMap[hub].stagings[staging] = { name: staging, count: 0, countCodYes: 0, countCodNo: 0, countAtt0: 0, countAtt1: 0, countAtt2: 0, countAtt3Plus: 0, fops: {}, stuck: {'205':0, '54':0, '57':0, '70':0}, countStuckTotal: 0, operators: {} };
+                
+                hubMap[hub].stagings[staging].count++;
+                isCod ? hubMap[hub].stagings[staging].countCodYes++ : hubMap[hub].stagings[staging].countCodNo++;
+                if (attVal === 0) hubMap[hub].stagings[staging].countAtt0++; else if (attVal === 1) hubMap[hub].stagings[staging].countAtt1++; else if (attVal === 2) hubMap[hub].stagings[staging].countAtt2++; else hubMap[hub].stagings[staging].countAtt3Plus++;
+                if (fopCode !== 'N/A') {
+                    if (!hubMap[hub].stagings[staging].fops[fopCode]) hubMap[hub].stagings[staging].fops[fopCode] = { count: 0 };
+                    hubMap[hub].stagings[staging].fops[fopCode].count++;
+                }
+                if (isStuck) {
+                    hubMap[hub].stagings[staging].countStuckTotal++;
+                    hubMap[hub].stagings[staging].stuck[fopCode]++;
                 }
 
-                if (!hubMap[hub].stagings[staging].niks[nik].fops[fopCode]) {
-                    hubMap[hub].stagings[staging].niks[nik].fops[fopCode] = { count: 0, awbs: [] };
+                if (!hubMap[hub].stagings[staging].operators[nik]) {
+                    hubMap[hub].stagings[staging].operators[nik] = { 
+                        nama: nama, nik: nik, count: 0, 
+                        codYes: { awbs: [] }, codNo: { awbs: [] }, 
+                        att0: { awbs: [] }, att1: { awbs: [] }, att2: { awbs: [] }, att3Plus: { awbs: [] }, 
+                        fops: {},
+                        stuck: {'205': {awbs:[]}, '54': {awbs:[]}, '57': {awbs:[]}, '70': {awbs:[]}}, countStuckTotal: 0
+                    };
                 }
-                hubMap[hub].stagings[staging].niks[nik].fops[fopCode].count++;
-                if (awb) hubMap[hub].stagings[staging].niks[nik].fops[fopCode].awbs.push(awb);
+                
+                const opNode = hubMap[hub].stagings[staging].operators[nik];
+                opNode.count++;
+                
+                if (awb) {
+                    if (isCod) opNode.codYes.awbs.push(awb); else opNode.codNo.awbs.push(awb);
+                    if (attVal === 0) opNode.att0.awbs.push(awb);
+                    else if (attVal === 1) opNode.att1.awbs.push(awb);
+                    else if (attVal === 2) opNode.att2.awbs.push(awb);
+                    else opNode.att3Plus.awbs.push(awb);
+
+                    if (fopCode !== 'N/A') {
+                        if (!opNode.fops[fopCode]) opNode.fops[fopCode] = { awbs: [] };
+                        opNode.fops[fopCode].awbs.push(awb);
+                    }
+                    if (isStuck) {
+                        opNode.countStuckTotal++;
+                        opNode.stuck[fopCode].awbs.push(awb);
+                    }
+                }
             });
 
-            window.allUniqueFops = Array.from(fopSet).sort();
-
-            window.dashboardData = Object.values(hubMap).map(hub => {
-                hub.stagings = Object.values(hub.stagings).map(staging => {
-                    staging.niks = Object.values(staging.niks);
-                    staging.niks.sort((a, b) => b.count - a.count);
-                    return staging;
+            window.allUniqueFops = Array.from(fopSet).sort((a,b) => parseInt(a) - parseInt(b));
+            
+            const sortedHubs = Object.values(hubMap).sort((a, b) => b.count - a.count);
+            sortedHubs.forEach(hub => {
+                hub.stagings = Object.values(hub.stagings).sort((a, b) => b.count - a.count);
+                hub.stagings.forEach(stg => {
+                    stg.operators = Object.values(stg.operators).sort((a, b) => b.count - a.count);
                 });
-                hub.stagings.sort((a, b) => b.count - a.count);
-                return hub;
             });
-            window.dashboardData.sort((a, b) => b.count - a.count);
+
+            window.dashboardData = sortedHubs;
 
             document.getElementById('emptyState').classList.replace('block', 'hidden');
             document.getElementById('summaryCards').classList.replace('hidden', 'grid');
             document.getElementById('listContainer').classList.replace('hidden', 'block');
 
             document.getElementById('totalPaket').innerText = filteredData.length;
-            document.getElementById('totalHub').innerText = window.dashboardData.length;
-            document.getElementById('totalCodYes').innerText = totalCodYes;
-            document.getElementById('totalCodNo').innerText = totalCodNo;
-            document.getElementById('totalAtt0').innerText = totalAtt0;
-            document.getElementById('totalAtt1').innerText = totalAtt1;
-            document.getElementById('totalAtt2').innerText = totalAtt2;
-            document.getElementById('totalAtt3Plus').innerText = totalAtt3Plus;
+            document.getElementById('totalHub').innerText = sortedHubs.length;
+            document.getElementById('totalCodYes').innerText = stats.codYes;
+            document.getElementById('totalCodNo').innerText = stats.codNo;
+            document.getElementById('totalAtt0').innerText = stats.att0;
+            document.getElementById('totalAtt1').innerText = stats.att1;
+            document.getElementById('totalAtt2').innerText = stats.att2;
+            document.getElementById('totalAtt3Plus').innerText = stats.att3Plus;
+            document.getElementById('totalStuck205').innerText = stats.stuck205;
+            document.getElementById('totalStuck54').innerText = stats.stuck54;
+            document.getElementById('totalStuck57').innerText = stats.stuck57;
+            document.getElementById('totalStuck70').innerText = stats.stuck70;
 
             switchView(window.currentView);
+        }
+
+        function showEmptyState(title, desc) {
+            document.getElementById('emptyState').classList.replace('hidden', 'block');
+            document.getElementById('summaryCards').classList.replace('grid', 'hidden');
+            document.getElementById('listContainer').classList.replace('block', 'hidden');
+            document.querySelector('#emptyState h3').innerText = title;
+            document.querySelector('#emptyState p').innerText = desc;
         }
 
         window.switchView = function(view) {
             window.currentView = view;
             const btnCopyAll = document.getElementById('btnCopyAll');
-            const tabs = ['COD', 'ATTEMPT', 'FOP'];
+            const tabs = ['COD', 'ATTEMPT', 'FOP', 'STUCK'];
 
             tabs.forEach(tab => {
                 const btn = document.getElementById(`tab${tab}`);
                 if (tab === view) {
-                    btn.className = "px-4 py-2 text-sm font-bold rounded-lg bg-blue-600 text-white shadow-sm transition-colors whitespace-nowrap";
+                    if(tab === 'STUCK') btn.className = "px-5 py-2 text-sm font-semibold rounded-lg bg-rose-500 text-white shadow-sm transition-all whitespace-nowrap flex items-center gap-2";
+                    else btn.className = "px-5 py-2 text-sm font-semibold rounded-lg bg-white text-slate-800 shadow-sm transition-all whitespace-nowrap flex items-center gap-2";
                 } else {
-                    btn.className = "px-4 py-2 text-sm font-bold rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap";
+                    if(tab === 'STUCK') btn.className = "px-5 py-2 text-sm font-semibold rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-all whitespace-nowrap flex items-center gap-2";
+                    else btn.className = "px-5 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 transition-all whitespace-nowrap flex items-center gap-2";
                 }
             });
 
@@ -374,165 +605,158 @@
             const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
             
+            let theadHtml = `
+                <tr>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider min-w-[250px] sticky left-0 bg-slate-50 z-20 shadow-[1px_0_0_0_#e2e8f0]">Nama Operator / NIK</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500 bg-slate-50 border-x border-slate-200">Total Paket</th>
+            `;
+
             if (window.currentView === 'COD') {
-                thead.innerHTML = `
-                    <tr class="text-gray-600 text-xs md:text-sm uppercase tracking-wider border-b border-gray-200">
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold w-3/5">Lokasi / NIK</th>
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold w-1/5 text-center">COD YES</th>
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold w-1/5 text-center">COD NO</th>
-                    </tr>
+                theadHtml += `
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center">COD YES</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center">COD NO</th>
                 `;
             } else if (window.currentView === 'ATTEMPT') {
-                thead.innerHTML = `
-                    <tr class="text-gray-600 text-xs md:text-sm uppercase tracking-wider border-b border-gray-200">
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold min-w-[200px]">Lokasi / NIK</th>
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold text-center">ATT 0</th>
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold text-center">ATT 1</th>
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold text-center">ATT 2</th>
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold text-center">ATT 3+</th>
-                    </tr>
+                theadHtml += `
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-sky-700">ATT 0</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-amber-600">ATT 1</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-orange-600">ATT 2</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-red-600">ATT 3+</th>
+                `;
+            } else if (window.currentView === 'STUCK') {
+                theadHtml += `
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-rose-700">OP 205</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-rose-700">OP 54</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-rose-700">OP 57</th>
+                    <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-rose-700">OP 70</th>
                 `;
             } else {
-                let fopHeaders = window.allUniqueFops.map(fop => `<th class="px-4 py-3 md:px-6 md:py-4 font-bold text-center fop-cell">${fop}</th>`).join('');
-                thead.innerHTML = `
-                    <tr class="text-gray-600 text-xs md:text-sm uppercase tracking-wider border-b border-gray-200">
-                        <th class="px-4 py-3 md:px-6 md:py-4 font-bold min-w-[200px]">Lokasi / NIK</th>
-                        ${fopHeaders}
-                    </tr>
-                `;
+                let fopHeaders = window.allUniqueFops.map(fop => `<th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center fop-cell">${fop}</th>`).join('');
+                theadHtml += fopHeaders;
             }
+            theadHtml += `</tr>`;
+            thead.innerHTML = readHeaders(theadHtml);
 
             let html = '';
-
             window.dashboardData.forEach((hub, hIdx) => {
-                const hubId = `h_${hIdx}`;
                 
-                let rowCols = '';
-
+                let hubRowCols = `<td class="px-5 py-3 text-center align-middle bg-slate-100/80 border-x border-slate-200"><span class="px-2 py-1 rounded bg-slate-200 text-slate-800 text-xs font-bold shadow-sm">${hub.count}</span></td>`;
+                
                 if (window.currentView === 'COD') {
-                    rowCols = `
-                        <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 min-w-[2.5rem] justify-center shadow-sm">${hub.countYes}</span>
-                        </td>
-                        <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 min-w-[2.5rem] justify-center shadow-sm">${hub.countNo}</span>
-                        </td>
-                    `;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">${hub.countCodYes}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-slate-200 text-slate-700 text-xs font-bold shadow-sm">${hub.countCodNo}</span></td>`;
                 } else if (window.currentView === 'ATTEMPT') {
-                    rowCols = `
-                        <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200 min-w-[2.5rem] justify-center shadow-sm">${hub.countAtt0}</span>
-                        </td>
-                        <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-200 min-w-[2.5rem] justify-center shadow-sm">${hub.countAtt1}</span>
-                        </td>
-                        <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200 min-w-[2.5rem] justify-center shadow-sm">${hub.countAtt2}</span>
-                        </td>
-                        <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 min-w-[2.5rem] justify-center shadow-sm">${hub.countAtt3Plus}</span>
-                        </td>
-                    `;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-sky-100 text-sky-800 text-xs font-bold shadow-sm">${hub.countAtt0}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs font-bold shadow-sm">${hub.countAtt1}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-orange-100 text-orange-800 text-xs font-bold shadow-sm">${hub.countAtt2}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-red-100 text-red-800 text-xs font-bold shadow-sm">${hub.countAtt3Plus}</span></td>`;
+                } else if (window.currentView === 'STUCK') {
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-100 text-rose-800 text-xs font-bold shadow-sm">${hub.stuck['205']}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-100 text-rose-800 text-xs font-bold shadow-sm">${hub.stuck['54']}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-100 text-rose-800 text-xs font-bold shadow-sm">${hub.stuck['57']}</span></td>`;
+                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-100 text-rose-800 text-xs font-bold shadow-sm">${hub.stuck['70']}</span></td>`;
                 } else {
-                    rowCols = window.allUniqueFops.map(fop => {
+                    hubRowCols += window.allUniqueFops.map(fop => {
                         const count = hub.fops[fop] ? hub.fops[fop].count : 0;
-                        return `<td class="px-4 py-3 md:px-6 md:py-4 text-center"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200 min-w-[2.5rem] justify-center shadow-sm">${count > 0 ? count : '-'}</span></td>`;
+                        return `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-purple-100 text-purple-800 text-xs font-bold shadow-sm">${count > 0 ? count : '-'}</span></td>`;
                     }).join('');
                 }
 
                 html += `
-                    <tr class="cursor-pointer hover:bg-gray-50 transition-colors group bg-white" onclick="toggleHub('${hubId}')" id="row_${hubId}">
-                        <td class="px-4 py-3 md:px-6 md:py-4 font-bold text-gray-900 flex items-center gap-2 whitespace-nowrap">
-                            <svg class="chevron text-blue-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M2 22h20"/><path d="M6 18v-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/><path d="M14 22V10a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12"/></svg>
-                            ${hub.name}
+                    <tr class="bg-slate-100/50 cursor-pointer hover:bg-slate-200 group" onclick="toggleLevel('hub_${hIdx}')" id="hub_${hIdx}">
+                        <td class="px-5 py-3 font-bold text-slate-800 sticky left-0 z-10 shadow-[1px_0_0_0_#e2e8f0]">
+                            <div class="flex items-center gap-2.5">
+                                <i class="chevron ph-fill ph-caret-right text-slate-400"></i>
+                                <i class="ph-fill ph-buildings text-indigo-400 text-lg"></i>
+                                ${hub.name}
+                            </div>
                         </td>
-                        ${rowCols}
-                    </tr>
-                `;
+                        ${hubRowCols}
+                    </tr>`;
 
                 hub.stagings.forEach((staging, sIdx) => {
-                    const stagingId = `${hubId}_s_${sIdx}`;
+                    let stgRowCols = `<td class="px-5 py-3 text-center align-middle bg-blue-50/80 border-x border-blue-100"><span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-bold">${staging.count}</span></td>`;
                     
-                    let sRowCols = '';
-
                     if (window.currentView === 'COD') {
-                        sRowCols = `
-                            <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-100 min-w-[2.5rem] justify-center">${staging.countYes}</span>
-                            </td>
-                            <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 min-w-[2.5rem] justify-center">${staging.countNo}</span>
-                            </td>
-                        `;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">${staging.countCodYes}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-slate-50 text-slate-600 text-xs font-bold border border-slate-200">${staging.countCodNo}</span></td>`;
                     } else if (window.currentView === 'ATTEMPT') {
-                        sRowCols = `
-                            <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 min-w-[2.5rem] justify-center">${staging.countAtt0}</span>
-                            </td>
-                            <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100 min-w-[2.5rem] justify-center">${staging.countAtt1}</span>
-                            </td>
-                            <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-100 min-w-[2.5rem] justify-center">${staging.countAtt2}</span>
-                            </td>
-                            <td class="px-4 py-3 md:px-6 md:py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-100 min-w-[2.5rem] justify-center">${staging.countAtt3Plus}</span>
-                            </td>
-                        `;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-sky-50 text-sky-700 text-xs font-bold border border-sky-200">${staging.countAtt0}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">${staging.countAtt1}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-orange-50 text-orange-700 text-xs font-bold border border-orange-200">${staging.countAtt2}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-red-50 text-red-700 text-xs font-bold border border-red-200">${staging.countAtt3Plus}</span></td>`;
+                    } else if (window.currentView === 'STUCK') {
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">${staging.stuck['205']}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">${staging.stuck['54']}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">${staging.stuck['57']}</span></td>`;
+                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">${staging.stuck['70']}</span></td>`;
                     } else {
-                        sRowCols = window.allUniqueFops.map(fop => {
+                        stgRowCols += window.allUniqueFops.map(fop => {
                             const count = staging.fops[fop] ? staging.fops[fop].count : 0;
-                            return `<td class="px-4 py-3 md:px-6 md:py-4 text-center"><span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100 min-w-[2.5rem] justify-center">${count > 0 ? count : '-'}</span></td>`;
+                            return `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200">${count > 0 ? count : '-'}</span></td>`;
                         }).join('');
                     }
 
                     html += `
-                        <tr class="cursor-pointer hover:bg-gray-100 transition-colors hidden child-of-${hubId} group bg-gray-50/50" onclick="toggleStaging('${stagingId}')" id="row_${stagingId}">
-                            <td class="px-4 py-3 md:px-6 md:py-4 pl-10 md:pl-12 font-semibold text-gray-800 flex items-center gap-2 whitespace-nowrap">
-                                <svg class="chevron text-orange-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                ${staging.name}
+                        <tr class="bg-blue-50/40 hidden child-of-hub_${hIdx} cursor-pointer hover:bg-blue-100 group" onclick="toggleLevel('hub_${hIdx}_stg_${sIdx}')" id="hub_${hIdx}_stg_${sIdx}">
+                            <td class="px-5 py-2.5 pl-10 md:pl-12 font-semibold text-blue-900 sticky left-0 z-10 shadow-[1px_0_0_0_#e0e7ff]">
+                                <div class="flex items-center gap-2">
+                                    <i class="chevron ph-fill ph-caret-right text-blue-400"></i>
+                                    <i class="ph-fill ph-map-pin text-blue-400 text-base"></i>
+                                    ${staging.name}
+                                </div>
                             </td>
-                            ${sRowCols}
-                        </tr>
-                    `;
+                            ${stgRowCols}
+                        </tr>`;
 
-                    staging.niks.forEach((nik, nIdx) => {
-                        let nRowCols = '';
+                    staging.operators.forEach((op, nIdx) => {
+                        let nRowCols = `<td class="px-5 py-3 text-center align-middle bg-slate-50 border-x border-slate-200"><span class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-800 font-bold shadow-sm inline-block min-w-[3rem]">${op.count}</span></td>`;
                         
+                        const makeBtn = (count, type, cat, colorCls) => {
+                            if (count === 0) return `<span class="text-slate-300">-</span>`;
+                            return `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, '${type}', '${cat}', this)" class="px-3 py-1.5 rounded-lg ${colorCls} font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap w-full md:w-auto flex items-center justify-center gap-1.5 mx-auto hover:-translate-y-px" title="Klik salin"><i class="ph ph-copy"></i> ${count}</button>`;
+                        };
+
                         if (window.currentView === 'COD') {
-                            const nCol1 = nik.codYes.count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, 'YES', 'COD', this)" class="px-3 py-1.5 rounded-md bg-green-50 text-green-700 hover:bg-green-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-green-200" title="Klik untuk salin">📋 ${nik.codYes.count}</button>` : '-';
-                            const nCol2 = nik.codNo.count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, 'NO', 'COD', this)" class="px-3 py-1.5 rounded-md bg-gray-50 text-gray-700 hover:bg-gray-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-gray-200" title="Klik untuk salin">📋 ${nik.codNo.count}</button>` : '-';
-                            nRowCols = `<td class="px-4 py-3 md:px-6 md:py-4 text-center">${nCol1}</td><td class="px-4 py-3 md:px-6 md:py-4 text-center">${nCol2}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.codYes.awbs.length, 'YES', 'COD', 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.codNo.awbs.length, 'NO', 'COD', 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100')}</td>`;
                         } else if (window.currentView === 'ATTEMPT') {
-                            const nCol1 = nik.att0.count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, 'ATT0', 'ATT', this)" class="px-3 py-1.5 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-blue-200" title="Klik untuk salin">📋 ${nik.att0.count}</button>` : '-';
-                            const nCol2 = nik.att1.count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, 'ATT1', 'ATT', this)" class="px-3 py-1.5 rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-orange-200" title="Klik untuk salin">📋 ${nik.att1.count}</button>` : '-';
-                            const nCol3 = nik.att2.count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, 'ATT2', 'ATT', this)" class="px-3 py-1.5 rounded-md bg-yellow-50 text-yellow-700 hover:bg-yellow-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-yellow-200" title="Klik untuk salin">📋 ${nik.att2.count}</button>` : '-';
-                            const nCol4 = nik.att3Plus.count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, 'ATT3PLUS', 'ATT', this)" class="px-3 py-1.5 rounded-md bg-red-50 text-red-700 hover:bg-red-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-red-200" title="Klik untuk salin">📋 ${nik.att3Plus.count}</button>` : '-';
-                            nRowCols = `<td class="px-4 py-3 md:px-6 md:py-4 text-center">${nCol1}</td><td class="px-4 py-3 md:px-6 md:py-4 text-center">${nCol2}</td><td class="px-4 py-3 md:px-6 md:py-4 text-center">${nCol3}</td><td class="px-4 py-3 md:px-6 md:py-4 text-center">${nCol4}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.att0.awbs.length, 'ATT0', 'ATT', 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.att1.awbs.length, 'ATT1', 'ATT', 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.att2.awbs.length, 'ATT2', 'ATT', 'bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.att3Plus.awbs.length, 'ATT3PLUS', 'ATT', 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100')}</td>`;
+                        } else if (window.currentView === 'STUCK') {
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.stuck['205'].awbs.length, '205', 'STUCK', 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.stuck['54'].awbs.length, '54', 'STUCK', 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.stuck['57'].awbs.length, '57', 'STUCK', 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100')}</td>`;
+                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.stuck['70'].awbs.length, '70', 'STUCK', 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100')}</td>`;
                         } else {
-                            nRowCols = window.allUniqueFops.map(fop => {
-                                const count = nik.fops[fop] ? nik.fops[fop].count : 0;
-                                const content = count > 0 ? `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, '${fop}', 'FOP', this)" class="px-3 py-1.5 rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap border border-purple-200" title="Klik untuk salin">📋 ${count}</button>` : '-';
-                                return `<td class="px-4 py-3 md:px-6 md:py-4 text-center">${content}</td>`;
+                            nRowCols += window.allUniqueFops.map(fop => {
+                                const count = op.fops[fop] ? op.fops[fop].awbs.length : 0;
+                                return `<td class="px-5 py-3 text-center align-middle">${makeBtn(count, fop, 'FOP', 'bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100')}</td>`;
                             }).join('');
                         }
 
                         html += `
-                            <tr class="hover:bg-blue-50/40 transition-colors hidden child-of-${stagingId} descendant-of-${hubId} bg-white">
-                                <td class="px-4 py-3 md:px-6 md:py-4 pl-16 md:pl-20 text-gray-700 whitespace-nowrap">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="text-blue-400 shrink-0" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                        <span class="font-medium">${nik.name}</span>
-                                        <button onclick="copyAllNikWA(${hIdx}, ${sIdx}, ${nIdx}, this)" class="ml-2 text-gray-400 hover:text-blue-600 transition-colors" title="Salin semua resi NIK ini">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            <tr class="hidden child-of-hub_${hIdx}_stg_${sIdx} descendant-of-hub_${hIdx} hover:bg-slate-50/80 bg-white">
+                                <td class="px-5 py-3 pl-14 md:pl-16 whitespace-nowrap align-middle sticky left-0 bg-white z-10 shadow-[1px_0_0_0_#f1f5f9]">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
+                                                <i class="ph-fill ph-user"></i>
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-slate-900">${op.nama}</div>
+                                                <div class="text-[11px] text-slate-400 font-mono mt-0.5 tracking-wider">${op.nik}</div>
+                                            </div>
+                                        </div>
+                                        <button onclick="copyAllNikWA(${hIdx}, ${sIdx}, ${nIdx}, this)" class="p-2 rounded-lg text-slate-300 hover:bg-blue-50 hover:text-blue-600 transition-colors" title="Salin semua resi NIK ini">
+                                            <i class="ph ph-copy-simple text-lg"></i>
                                         </button>
                                     </div>
                                 </td>
                                 ${nRowCols}
-                            </tr>
-                        `;
+                            </tr>`;
                     });
                 });
             });
@@ -540,189 +764,121 @@
             tbody.innerHTML = html;
         }
 
-        window.toggleHub = function(hubId) {
-            const row = document.getElementById(`row_${hubId}`);
-            const isExpanded = row.classList.contains('expanded');
-            
-            if (isExpanded) {
-                row.classList.remove('expanded');
-                document.querySelectorAll(`.child-of-${hubId}`).forEach(el => {
-                    el.classList.add('hidden');
-                    el.classList.remove('expanded');
-                });
-                document.querySelectorAll(`.descendant-of-${hubId}`).forEach(el => {
-                    el.classList.add('hidden');
-                    el.classList.remove('expanded');
-                });
-            } else {
-                row.classList.add('expanded');
-                document.querySelectorAll(`.child-of-${hubId}`).forEach(el => el.classList.remove('hidden'));
-            }
-        };
+        function readHeaders(str) { return str; } // Helper for clean mapping
 
-        window.toggleStaging = function(stagingId) {
-            const row = document.getElementById(`row_${stagingId}`);
+        window.toggleLevel = function(id) {
+            const row = document.getElementById(id);
             const isExpanded = row.classList.contains('expanded');
             
             if (isExpanded) {
                 row.classList.remove('expanded');
-                document.querySelectorAll(`.child-of-${stagingId}`).forEach(el => {
+                document.querySelectorAll(`.child-of-${id}`).forEach(el => {
                     el.classList.add('hidden');
                     el.classList.remove('expanded');
                 });
-                document.querySelectorAll(`.descendant-of-${stagingId}`).forEach(el => {
-                    if(el.classList.contains(`child-of-${stagingId}`) === false) {
-                        el.classList.add('hidden');
-                    }
+                document.querySelectorAll(`.descendant-of-${id}`).forEach(el => {
+                    el.classList.add('hidden');
                 });
             } else {
                 row.classList.add('expanded');
-                document.querySelectorAll(`.child-of-${stagingId}`).forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll(`.child-of-${id}`).forEach(el => el.classList.remove('hidden'));
             }
         };
 
         window.copyAllNikWA = function(hIdx, sIdx, nIdx, btnElement) {
-            const hub = window.dashboardData[hIdx];
-            const staging = hub.stagings[sIdx];
-            const nik = staging.niks[nIdx];
+            const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
+            let allAwbs = [];
             
-            const allAwbs = [...nik.codYes.awbs, ...nik.codNo.awbs];
-            
-            const text = `Halo tim ${staging.name}, terdapat ${allAwbs.length} paket yang masih gantung di kurir dengan NIK ${nik.name}. Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${allAwbs.join('\n')}\n\nTerima kasih.`;
-            
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                
-                const originalHTML = btnElement.innerHTML;
-                btnElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>';
-                
-                setTimeout(() => {
-                    btnElement.innerHTML = originalHTML;
-                }, 1500);
-            } catch (err) {
-                console.error('Gagal menyalin', err);
+            if (window.currentView === 'STUCK') {
+                 allAwbs = [...op.stuck['205'].awbs, ...op.stuck['54'].awbs, ...op.stuck['57'].awbs, ...op.stuck['70'].awbs];
+                 if(allAwbs.length === 0) return alert('Tidak ada resi Stuck Opcode (Bukan Hari ini) di NIK ini.');
+            } else {
+                 allAwbs = [...op.codYes.awbs, ...op.codNo.awbs];
             }
-            
-            document.body.removeChild(textArea);
+
+            const text = `Halo tim ${window.dashboardData[hIdx].stagings[sIdx].name}, terdapat ${allAwbs.length} paket yang masih gantung di kurir dengan NIK ${op.nik} (${op.nama}). Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${allAwbs.join('\n')}\n\nTerima kasih.`;
+            executeCopy(text, btnElement, '<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i>', 'bg-emerald-50');
         };
 
         window.copyDirectWA = function(hIdx, sIdx, nIdx, type, category, btnElement) {
-            const hub = window.dashboardData[hIdx];
-            const staging = hub.stagings[sIdx];
-            const nik = staging.niks[nIdx];
+            const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
+            const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
             
             let dataObj, labelText;
             if (category === 'COD') {
-                dataObj = type === 'YES' ? nik.codYes : nik.codNo;
+                dataObj = type === 'YES' ? op.codYes : op.codNo;
                 labelText = `COD: ${type}`;
             } else if (category === 'ATT') {
-                if (type === 'ATT0') { dataObj = nik.att0; labelText = 'Attempt: 0'; }
-                else if (type === 'ATT1') { dataObj = nik.att1; labelText = 'Attempt: 1'; }
-                else if (type === 'ATT2') { dataObj = nik.att2; labelText = 'Attempt: 2'; }
-                else { dataObj = nik.att3Plus; labelText = 'Attempt: 3+'; }
-            } else if (category === 'FOP') {
-                dataObj = nik.fops[type];
-                labelText = `FOP: ${type}`;
+                const mapAtt = {'ATT0':'0', 'ATT1':'1', 'ATT2':'2', 'ATT3PLUS':'3+'};
+                dataObj = op[type.toLowerCase()]; labelText = `Attempt: ${mapAtt[type]}`;
+            } else if (category === 'STUCK') {
+                dataObj = op.stuck[type]; labelText = `Stuck Opcode: ${type}`;
+            } else {
+                dataObj = op.fops[type]; labelText = `FOP: ${type}`;
             }
 
-            const text = `Halo tim ${staging.name}, terdapat ${dataObj.awbs.length} paket (${labelText}) yang masih gantung di kurir dengan NIK ${nik.name}. Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${dataObj.awbs.join('\n')}\n\nTerima kasih.`;
+            const text = `Halo tim ${stgName}, terdapat ${dataObj.awbs.length} paket (${labelText}) yang masih gantung di kurir dengan NIK ${op.nik} (${op.nama}). Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${dataObj.awbs.join('\n')}\n\nTerima kasih.`;
             
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                
-                const originalText = btnElement.innerText;
-                const originalWidth = btnElement.offsetWidth;
-                
-                btnElement.style.minWidth = `${originalWidth}px`;
-                btnElement.innerText = 'Tersalin!';
-                btnElement.style.backgroundColor = '#22c55e';
-                btnElement.style.color = '#ffffff';
-                
-                setTimeout(() => {
-                    btnElement.innerText = originalText;
-                    btnElement.style.minWidth = 'auto';
-                    btnElement.style.backgroundColor = '';
-                    btnElement.style.color = '';
-                }, 1500);
-            } catch (err) {
-                console.error('Gagal menyalin', err);
-            }
-            
-            document.body.removeChild(textArea);
+            executeCopy(text, btnElement, '<i class="ph ph-check font-bold"></i>', 'bg-emerald-500 text-white border-emerald-600');
         };
 
         window.copyAllReport = function() {
             if (!window.dashboardData.length) return;
-            
             let report = "Laporan Paket Gantung (Attempt 3+)\n\n";
             let hasData = false;
 
             window.dashboardData.forEach(hub => {
-                let hubReport = `HUB: ${hub.name}\n`;
-                let stagingCount = 0;
-
-                hub.stagings.forEach(staging => {
-                    let stagingAwbs = [];
-                    staging.niks.forEach(nik => {
-                        stagingAwbs.push(...nik.att3Plus.awbs);
-                    });
-                    
-                    if(stagingAwbs.length > 0) {
-                        hasData = true;
-                        stagingCount++;
-                        hubReport += `Staging: ${staging.name}\nTotal: ${stagingAwbs.length} Paket\n`;
-                        hubReport += stagingAwbs.join('\n') + '\n\n';
+                let hubRep = `HUB: ${hub.name}\n`;
+                let stgCount = 0;
+                hub.stagings.forEach(stg => {
+                    let awbs = [];
+                    stg.operators.forEach(op => awbs.push(...op.att3Plus.awbs));
+                    if(awbs.length > 0) {
+                        hasData = true; stgCount++;
+                        hubRep += `Staging: ${stg.name}\nTotal: ${awbs.length} Paket\n${awbs.join('\n')}\n\n`;
                     }
                 });
-
-                if (stagingCount > 0) {
-                    report += hubReport + '---------------------------\n\n';
-                }
+                if (stgCount > 0) report += hubRep + '---------------------------\n\n';
             });
             
-            if (!hasData) {
-                alert("Tidak ada resi dengan Attempt 3+ untuk disalin.");
-                return;
-            }
+            if (!hasData) return alert("Tidak ada resi Attempt 3+");
 
-            const textArea = document.createElement("textarea");
-            textArea.value = report;
-            document.body.appendChild(textArea);
-            textArea.select();
-            
+            const btn = document.getElementById('btnCopyAll');
+            const icon = document.getElementById('iconCopyAll');
+            const span = btn.querySelector('span');
+            const oldHTML = icon.outerHTML;
+            const oldText = span.innerText;
+
+            executeCopy(report, null, null, null, () => {
+                icon.className = "ph-fill ph-check-circle text-lg";
+                span.innerText = "Tersalin!";
+                btn.className = "px-5 py-2.5 text-sm font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 w-full md:w-auto";
+                setTimeout(() => {
+                    icon.outerHTML = oldHTML; span.innerText = oldText;
+                    btn.className = "hidden px-5 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-xl shadow-sm shadow-red-500/20 transition-all flex items-center justify-center gap-2 whitespace-nowrap w-full md:w-auto";
+                }, 2000);
+            });
+        };
+
+        function executeCopy(text, btnElement, successHtml, successClass, customCallback) {
+            const ta = document.createElement("textarea");
+            ta.value = text; document.body.appendChild(ta); ta.select();
             try {
                 document.execCommand('copy');
-                const btn = document.getElementById('btnCopyAll');
-                const icon = document.getElementById('iconCopyAll');
-                const textSpan = btn.querySelector('span');
-                
-                icon.innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>';
-                textSpan.innerText = 'Tersalin!';
-                btn.classList.replace('bg-red-600', 'bg-green-600');
-                btn.classList.replace('hover:bg-red-700', 'hover:bg-green-700');
-                
-                setTimeout(() => {
-                    icon.innerHTML = '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>';
-                    textSpan.innerText = 'Salin Laporan ATT 3+';
-                    btn.classList.replace('bg-green-600', 'bg-red-600');
-                    btn.classList.replace('hover:bg-green-700', 'hover:bg-red-700');
-                }, 2000);
-            } catch (err) {
-                console.error('Gagal menyalin', err);
-            }
-            
-            document.body.removeChild(textArea);
-        };
+                if (customCallback) { customCallback(); }
+                else if (btnElement) {
+                    const oHtml = btnElement.innerHTML;
+                    const oClass = btnElement.className;
+                    btnElement.innerHTML = successHtml;
+                    if(successClass) {
+                        btnElement.className = btnElement.className.replace(/bg-\w+-\d+/g, '').replace(/text-\w+-\d+/g, '').replace(/border-\w+-\d+/g, '');
+                        btnElement.className += ` ${successClass}`;
+                    }
+                    setTimeout(() => { btnElement.innerHTML = oHtml; btnElement.className = oClass; }, 1500);
+                }
+            } catch (err) { console.error('Gagal', err); }
+            document.body.removeChild(ta);
+        }
     </script>
 </body>
 </html>

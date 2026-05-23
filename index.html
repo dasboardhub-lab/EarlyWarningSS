@@ -223,8 +223,8 @@
     </div>
 
     <script>
-        const supabaseUrl = 'https://mjhzjslwzgyraoqdwkmy.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qaHpqc2x3emd5cmFvcWR3a215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzM4NDQsImV4cCI6MjA5NDg0OTg0NH0.BCGtkw1WYKE6zFNf0-Y_t50zzC0-vUHpZgIcpUA8xFE';
+        const supabaseUrl = 'https://fdcxgskqdiqefdqrhaxl.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY3hnc2txZGlxZWZkcXJoYXhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjAzMzUsImV4cCI6MjA5NTA5NjMzNX0.Eaw1PQyh9mltLpCLv1vdUEUHbHmfyX8uii9azRBmqIc';
 
         window.dashboardData = [];
         window.rawParsedData = [];
@@ -237,6 +237,8 @@
         window.warningFops = [];
         window.pendingFops = [];
         window.freezeFops = ['92'];
+        window.targetData = {};
+        window.allUniqueHubs = [];
         window.currentView = 'COD';
 
         const modal = document.getElementById('settingsModal');
@@ -531,6 +533,8 @@
 
             const fopSet = new Set();
             const hubMap = {};
+            const targetMap = {};
+            const targetHubSet = new Set();
             
             let stats = { codYes: 0, codNo: 0, att0: 0, att1: 0, att2: 0, att3Plus: 0, warning: 0, pending: 0, freeze: 0 };
 
@@ -564,6 +568,16 @@
                     else if (diffDays === 0) targetCat = 'lastDay';
                     else if (diffDays === 1) targetCat = 'sameday';
                     else targetCat = 'more2Days';
+                }
+
+                if (awb) {
+                    targetHubSet.add(hub);
+                    if (expectTm) {
+                        if (!targetMap[expectTm]) targetMap[expectTm] = {};
+                        if (!targetMap[expectTm][hub]) targetMap[expectTm][hub] = { count: 0, awbs: [] };
+                        targetMap[expectTm][hub].count++;
+                        targetMap[expectTm][hub].awbs.push(awb);
+                    }
                 }
 
                 const isFreeze = fopCode === '92';
@@ -653,6 +667,9 @@
             window.warningFops = uniqueFopsArray.filter(f => window.warningOpcodes.includes(f) && f !== '92').sort((a,b) => parseInt(a) - parseInt(b));
             window.pendingFops = uniqueFopsArray.filter(f => !window.warningOpcodes.includes(f) && f !== '92').sort((a,b) => parseInt(a) - parseInt(b));
             
+            window.targetData = targetMap;
+            window.allUniqueHubs = Array.from(targetHubSet).sort();
+
             const sortedHubs = Object.values(hubMap).sort((a, b) => b.count - a.count);
             sortedHubs.forEach(hub => {
                 hub.stagings = Object.values(hub.stagings).sort((a, b) => b.count - a.count);
@@ -723,20 +740,48 @@
             const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
             
+            if (window.currentView === 'TARGET') {
+                let theadHtml = `
+                    <tr>
+                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider min-w-[200px] sticky left-0 bg-slate-50 z-20 shadow-[1px_0_0_0_#e2e8f0]">Tanggal Target Delivery</th>
+                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500 bg-slate-50 border-x border-slate-200">Total Hari</th>
+                `;
+                window.allUniqueHubs.forEach(hub => {
+                    theadHtml += `<th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center">${hub}</th>`;
+                });
+                theadHtml += `</tr>`;
+                thead.innerHTML = theadHtml;
+
+                let html = '';
+                Object.keys(window.targetData).sort().forEach(date => {
+                    let rowTotal = 0;
+                    let colsHtml = window.allUniqueHubs.map(hub => {
+                        const data = window.targetData[date][hub];
+                        const count = data ? data.count : 0;
+                        rowTotal += count;
+                        const btn = count > 0 ? `<button onclick="copyTargetWA('${date}', '${hub}', this)" class="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 font-bold shadow-sm hover:bg-indigo-100 transition-all border border-indigo-200 w-full md:w-auto mx-auto flex items-center justify-center gap-1.5"><i class="ph ph-copy"></i> ${count}</button>` : '<span class="text-slate-300">-</span>';
+                        return `<td class="px-5 py-3 text-center align-middle border-x border-slate-100">${btn}</td>`;
+                    }).join('');
+
+                    html += `
+                        <tr class="hover:bg-slate-50 bg-white border-b border-slate-100">
+                            <td class="px-5 py-4 font-bold text-slate-800 sticky left-0 z-10 shadow-[1px_0_0_0_#e2e8f0] bg-white whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-fill ph-calendar-blank text-indigo-400"></i> ${date}
+                                </div>
+                            </td>
+                            <td class="px-5 py-3 text-center align-middle bg-slate-50 border-x border-slate-200 font-bold text-slate-700">${rowTotal}</td>
+                            ${colsHtml}
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+                return;
+            }
+
             let theadHtml = '';
 
-            if (window.currentView === 'TARGET') {
-                theadHtml = `
-                    <tr>
-                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider min-w-[250px] sticky left-0 bg-slate-50 z-20 shadow-[1px_0_0_0_#e2e8f0]">Nama Operator / NIK</th>
-                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500 bg-slate-50 border-x border-slate-200">Total Paket</th>
-                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-red-700">Over SLA</th>
-                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-orange-600">Last Day</th>
-                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-blue-600">Sameday</th>
-                        <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-emerald-600">&gt; 2 Hari</th>
-                    </tr>
-                `;
-            } else if (window.currentView === 'COD') {
+            if (window.currentView === 'COD') {
                 theadHtml = `
                     <tr>
                         <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider min-w-[250px] sticky left-0 bg-slate-50 z-20 shadow-[1px_0_0_0_#e2e8f0]">Nama Operator / NIK</th>
@@ -784,13 +829,7 @@
                 
                 let hubRowCols = '';
                 
-                if (window.currentView === 'TARGET') {
-                    hubRowCols += `<td class="px-5 py-3 text-center align-middle bg-slate-100/80 border-x border-slate-200"><span class="px-2 py-1 rounded bg-slate-200 text-slate-800 text-xs font-bold shadow-sm">${hub.count}</span></td>`;
-                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-red-100 text-red-800 text-xs font-bold shadow-sm">${hub.target.overSla.count}</span></td>`;
-                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-orange-100 text-orange-800 text-xs font-bold shadow-sm">${hub.target.lastDay.count}</span></td>`;
-                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-bold shadow-sm">${hub.target.sameday.count}</span></td>`;
-                    hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">${hub.target.more2Days.count}</span></td>`;
-                } else if (window.currentView === 'COD') {
+                if (window.currentView === 'COD') {
                     hubRowCols += `<td class="px-5 py-3 text-center align-middle bg-slate-100/80 border-x border-slate-200"><span class="px-2 py-1 rounded bg-slate-200 text-slate-800 text-xs font-bold shadow-sm">${hub.count}</span></td>`;
                     hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">${hub.countCodYes}</span></td>`;
                     hubRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-slate-200 text-slate-700 text-xs font-bold shadow-sm">${hub.countCodNo}</span></td>`;
@@ -833,13 +872,7 @@
                 hub.stagings.forEach((staging, sIdx) => {
                     let stgRowCols = '';
                     
-                    if (window.currentView === 'TARGET') {
-                        stgRowCols += `<td class="px-5 py-3 text-center align-middle bg-blue-50/80 border-x border-blue-100"><span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-bold shadow-sm">${staging.count}</span></td>`;
-                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-red-50 text-red-700 text-xs font-bold border border-red-200">${staging.target.overSla.count}</span></td>`;
-                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-orange-50 text-orange-700 text-xs font-bold border border-orange-200">${staging.target.lastDay.count}</span></td>`;
-                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200">${staging.target.sameday.count}</span></td>`;
-                        stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">${staging.target.more2Days.count}</span></td>`;
-                    } else if (window.currentView === 'COD') {
+                    if (window.currentView === 'COD') {
                         stgRowCols += `<td class="px-5 py-3 text-center align-middle bg-blue-50/80 border-x border-blue-100"><span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-bold shadow-sm">${staging.count}</span></td>`;
                         stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">${staging.countCodYes}</span></td>`;
                         stgRowCols += `<td class="px-5 py-3 text-center align-middle"><span class="px-2 py-1 rounded bg-slate-50 text-slate-600 text-xs font-bold border border-slate-200">${staging.countCodNo}</span></td>`;
@@ -882,13 +915,7 @@
                     staging.operators.forEach((op, nIdx) => {
                         let nRowCols = '';
 
-                        if (window.currentView === 'TARGET') {
-                            nRowCols += `<td class="px-5 py-3 text-center align-middle bg-slate-50 border-x border-slate-200"><span class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-800 font-bold shadow-sm inline-block min-w-[3rem]">${op.count}</span></td>`;
-                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.target.overSla.count, 'overSla', 'TARGET', 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100', hIdx, sIdx, nIdx)}</td>`;
-                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.target.lastDay.count, 'lastDay', 'TARGET', 'bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100', hIdx, sIdx, nIdx)}</td>`;
-                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.target.sameday.count, 'sameday', 'TARGET', 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100', hIdx, sIdx, nIdx)}</td>`;
-                            nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.target.more2Days.count, 'more2Days', 'TARGET', 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100', hIdx, sIdx, nIdx)}</td>`;
-                        } else if (window.currentView === 'COD') {
+                        if (window.currentView === 'COD') {
                             nRowCols += `<td class="px-5 py-3 text-center align-middle bg-slate-50 border-x border-slate-200"><span class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-800 font-bold shadow-sm inline-block min-w-[3rem]">${op.count}</span></td>`;
                             nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.codYes.awbs.length, 'YES', 'COD', 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100', hIdx, sIdx, nIdx)}</td>`;
                             nRowCols += `<td class="px-5 py-3 text-center align-middle">${makeBtn(op.codNo.awbs.length, 'NO', 'COD', 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100', hIdx, sIdx, nIdx)}</td>`;
@@ -1031,6 +1058,13 @@
                     btn.className = "hidden px-5 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-xl shadow-sm shadow-red-500/20 transition-all flex items-center justify-center gap-2 whitespace-nowrap w-full lg:w-auto";
                 }, 2000);
             });
+        };
+
+        window.copyTargetWA = function(date, hub, btnElement) {
+            const data = window.targetData[date][hub];
+            if(!data || data.awbs.length === 0) return;
+            const text = `Halo tim ${hub}, terdapat ${data.awbs.length} paket dengan Target Delivery ${date} yang masih gantung. Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${data.awbs.join('\n')}\n\nTerima kasih.`;
+            executeCopy(text, btnElement, '<i class="ph ph-check font-bold"></i>', 'bg-indigo-500 text-white border-indigo-600');
         };
 
         function executeCopy(text, btnElement, successHtml, successClass, customCallback) {

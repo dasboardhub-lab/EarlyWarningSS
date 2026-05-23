@@ -206,12 +206,23 @@
                     <textarea id="warningFilterInput" class="w-full h-16 p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none resize-none shadow-sm"></textarea>
                 </div>
 
-                <div>
+                <div class="mb-5">
                     <label class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-1.5">
                         <i class="ph ph-prohibit text-slate-500"></i> FOP Dikecualikan
                     </label>
                     <p class="text-xs text-slate-500 mb-3">Tulis kode FOP yang tidak ditampilkan sama sekali (take out) saat unggah data.</p>
                     <textarea id="excludeFilterInput" class="w-full h-16 p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-500 focus:outline-none resize-none shadow-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-1.5">
+                        <i class="ph ph-copy text-indigo-500"></i> Format Salin WA
+                    </label>
+                    <p class="text-xs text-slate-500 mb-3">Pilih data yang ingin disertakan saat menyalin laporan.</p>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="copyOptAddress" class="rounded text-blue-600"> Alamat Penerima</label>
+                        <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="copyOptDistrict" class="rounded text-blue-600"> Kecamatan</label>
+                    </div>
                 </div>
             </div>
             
@@ -240,6 +251,10 @@
         window.targetData = {};
         window.allUniqueHubs = [];
         window.currentView = 'COD';
+        window.copyOptions = [];
+
+        const savedCopyOpts = localStorage.getItem('copyOptions');
+        if (savedCopyOpts) window.copyOptions = JSON.parse(savedCopyOpts);
 
         const modal = document.getElementById('settingsModal');
         const modalContent = document.getElementById('settingsModalContent');
@@ -299,7 +314,10 @@
                         attempt_70: r.attempt,
                         awb_no: r.awb,
                         fop_code_internal: r.fop_code,
-                        expect_delivery_tm: r.expect_delivery_tm
+                        expect_delivery_tm: r.expect_delivery_tm,
+                        time_scan_internal: r.time_scan_internal,
+                        receiver_address: r.receiver_address || '',
+                        receiver_district_name: r.receiver_district_name || ''
                     }));
                     window.rawParsedData = mappedData;
                     processData(mappedData);
@@ -317,6 +335,8 @@
             document.getElementById('hubFilterInput').value = window.allowedHubs.join(', ');
             document.getElementById('warningFilterInput').value = window.warningOpcodes.join(', ');
             document.getElementById('excludeFilterInput').value = window.excludedOpcodes.join(', ');
+            document.getElementById('copyOptAddress').checked = window.copyOptions.includes('address');
+            document.getElementById('copyOptDistrict').checked = window.copyOptions.includes('district');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             setTimeout(() => { modal.style.opacity = '1'; modalContent.style.transform = 'scale(1)'; }, 10);
@@ -337,6 +357,12 @@
 
             const excludeInput = document.getElementById('excludeFilterInput').value;
             window.excludedOpcodes = excludeInput.split(/[\n,]+/).map(h => h.trim()).filter(h => h);
+
+            const opts = [];
+            if (document.getElementById('copyOptAddress').checked) opts.push('address');
+            if (document.getElementById('copyOptDistrict').checked) opts.push('district');
+            window.copyOptions = opts;
+            localStorage.setItem('copyOptions', JSON.stringify(opts));
 
             closeSettings();
             
@@ -444,7 +470,10 @@
                 use_cod: row.flag_cod || row.use_cod || '',
                 attempt: row.attempt_70 || '0',
                 fop_code: row.fop_code_internal || '',
-                expect_delivery_tm: row.expect_delivery_tm || ''
+                expect_delivery_tm: row.expect_delivery_tm || '',
+                time_scan_internal: row.time_scan_internal || '',
+                receiver_address: row.receiver_address || '',
+                receiver_district_name: row.receiver_district_name || ''
             }));
 
             const chunkSize = 1000;
@@ -488,20 +517,24 @@
                 let hasMore = true;
 
                 while (hasMore) {
-                    const res = await fetch(`${supabaseUrl}/rest/v1/paket_gantung?select=awb&limit=${limit}&offset=${offset}`, {
+                    const res = await fetch(`${supabaseUrl}/rest/v1/paket_gantung?select=awb,receiver_address,receiver_district_name&limit=${limit}&offset=${offset}`, {
                         headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
                     });
                     if (!res.ok) throw new Error("Gagal mengambil data");
                     const data = await res.json();
                     
-                    allAwbs = allAwbs.concat(data.map(d => d.awb));
+                    allAwbs = allAwbs.concat(data.map(d => ({
+                        awb: d.awb,
+                        address: d.receiver_address || '',
+                        district: d.receiver_district_name || ''
+                    })));
                     if (data.length < limit) hasMore = false;
                     else offset += limit;
                 }
                 
                 if (allAwbs.length === 0) return alert("Database kosong");
                 
-                const textData = allAwbs.join('\n');
+                const textData = formatAwbList(allAwbs);
                 executeCopy(`Daftar Semua Resi di Database:\n\n${textData}`, null, null, null, () => {
                     alert("Semua resi berhasil disalin dari database");
                 });
@@ -576,7 +609,7 @@
                         if (!targetMap[expectTm]) targetMap[expectTm] = {};
                         if (!targetMap[expectTm][hub]) targetMap[expectTm][hub] = { count: 0, awbs: [] };
                         targetMap[expectTm][hub].count++;
-                        targetMap[expectTm][hub].awbs.push(awb);
+                        targetMap[expectTm][hub].awbs.push({ awb: awb, address: row.receiver_address || '', district: row.receiver_district_name || '' });
                     }
                 }
 
@@ -643,22 +676,23 @@
                 opNode.count++;
                 
                 if (awb) {
-                    if (isCod) opNode.codYes.awbs.push(awb); else opNode.codNo.awbs.push(awb);
-                    if (attVal === 0) opNode.att0.awbs.push(awb);
-                    else if (attVal === 1) opNode.att1.awbs.push(awb);
-                    else if (attVal === 2) opNode.att2.awbs.push(awb);
-                    else opNode.att3Plus.awbs.push(awb);
+                    const pkgData = { awb: awb, address: row.receiver_address || '', district: row.receiver_district_name || '' };
+                    if (isCod) opNode.codYes.awbs.push(pkgData); else opNode.codNo.awbs.push(pkgData);
+                    if (attVal === 0) opNode.att0.awbs.push(pkgData);
+                    else if (attVal === 1) opNode.att1.awbs.push(pkgData);
+                    else if (attVal === 2) opNode.att2.awbs.push(pkgData);
+                    else opNode.att3Plus.awbs.push(pkgData);
 
                     if (fopCode !== 'N/A') {
                         if (!opNode.fops[fopCode]) opNode.fops[fopCode] = { awbs: [] };
-                        opNode.fops[fopCode].awbs.push(awb);
+                        opNode.fops[fopCode].awbs.push(pkgData);
                         if (isFreeze) opNode.countFreeze++;
                         else if (isWarning) opNode.countWarning++;
                         else opNode.countPending++;
                     }
                     if (targetCat) {
                         opNode.target[targetCat].count++;
-                        opNode.target[targetCat].awbs.push(awb);
+                        opNode.target[targetCat].awbs.push(pkgData);
                     }
                 }
             });
@@ -740,8 +774,10 @@
             const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
             
+            let theadHtml = '';
+
             if (window.currentView === 'TARGET') {
-                let theadHtml = `
+                theadHtml = `
                     <tr>
                         <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider min-w-[200px] sticky left-0 bg-slate-50 z-20 shadow-[1px_0_0_0_#e2e8f0]">Tanggal Target Delivery</th>
                         <th class="px-5 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500 bg-slate-50 border-x border-slate-200">Total Hari</th>
@@ -778,8 +814,6 @@
                 tbody.innerHTML = html;
                 return;
             }
-
-            let theadHtml = '';
 
             if (window.currentView === 'COD') {
                 theadHtml = `
@@ -970,6 +1004,15 @@
             tbody.innerHTML = html;
         }
 
+        function formatAwbList(awbsArray) {
+            return awbsArray.map(pkg => {
+                let parts = [pkg.awb];
+                if (window.copyOptions.includes('address') && pkg.address) parts.push(pkg.address);
+                if (window.copyOptions.includes('district') && pkg.district) parts.push(pkg.district);
+                return parts.join(' - ');
+            }).join('\n');
+        }
+
         window.toggleLevel = function(id) {
             const row = document.getElementById(id);
             const isExpanded = row.classList.contains('expanded');
@@ -995,7 +1038,7 @@
 
             if(allAwbs.length === 0) return alert('Tidak ada resi di NIK ini');
 
-            const text = `Halo tim ${window.dashboardData[hIdx].stagings[sIdx].name}, terdapat ${allAwbs.length} paket yang masih gantung di kurir dengan NIK ${op.nik} (${op.nama}). Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${allAwbs.join('\n')}\n\nTerima kasih.`;
+            const text = `Halo tim ${window.dashboardData[hIdx].stagings[sIdx].name}, terdapat ${allAwbs.length} paket yang masih gantung di kurir dengan NIK ${op.nik} (${op.nama}). Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${formatAwbList(allAwbs)}\n\nTerima kasih.`;
             executeCopy(text, btnElement, '<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i>', 'bg-emerald-50');
         };
 
@@ -1017,7 +1060,7 @@
                 dataObj = op.fops[type]; labelText = type === '92' ? `FOP: ${type} (Freeze)` : `FOP: ${type}`;
             }
 
-            const text = `Halo tim ${stgName}, terdapat ${dataObj.awbs.length} paket (${labelText}) yang masih gantung di kurir dengan NIK ${op.nik} (${op.nama}). Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${dataObj.awbs.join('\n')}\n\nTerima kasih.`;
+            const text = `Halo tim ${stgName}, terdapat ${dataObj.awbs.length} paket (${labelText}) yang masih gantung di kurir dengan NIK ${op.nik} (${op.nama}). Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${formatAwbList(dataObj.awbs)}\n\nTerima kasih.`;
             
             executeCopy(text, btnElement, '<i class="ph ph-check font-bold"></i>', 'bg-emerald-500 text-white border-emerald-600');
         };
@@ -1035,7 +1078,7 @@
                     stg.operators.forEach(op => awbs.push(...op.att3Plus.awbs));
                     if(awbs.length > 0) {
                         hasData = true; stgCount++;
-                        hubRep += `Staging: ${stg.name}\nTotal: ${awbs.length} Paket\n${awbs.join('\n')}\n\n`;
+                        hubRep += `Staging: ${stg.name}\nTotal: ${awbs.length} Paket\n${formatAwbList(awbs)}\n\n`;
                     }
                 });
                 if (stgCount > 0) report += hubRep + '---------------------------\n\n';
@@ -1063,7 +1106,7 @@
         window.copyTargetWA = function(date, hub, btnElement) {
             const data = window.targetData[date][hub];
             if(!data || data.awbs.length === 0) return;
-            const text = `Halo tim ${hub}, terdapat ${data.awbs.length} paket dengan Target Delivery ${date} yang masih gantung. Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${data.awbs.join('\n')}\n\nTerima kasih.`;
+            const text = `Halo tim ${hub}, terdapat ${data.awbs.length} paket dengan Target Delivery ${date} yang masih gantung. Mohon bantuan untuk segera diproses.\n\nDaftar AWB:\n${formatAwbList(data.awbs)}\n\nTerima kasih.`;
             executeCopy(text, btnElement, '<i class="ph ph-check font-bold"></i>', 'bg-indigo-500 text-white border-indigo-600');
         };
 

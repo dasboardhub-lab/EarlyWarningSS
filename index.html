@@ -54,7 +54,7 @@
 
     <div class="max-w-[96rem] mx-auto space-y-4 p-2 md:p-4 lg:p-6">
         
-        <header class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 relative overflow-hidden">
+        <header class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 relative overflow-hidden z-20">
             <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
             <div class="flex items-center gap-3 pl-2">
                 <div class="p-2.5 bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 rounded-lg shadow-inner border border-blue-100/50">
@@ -87,6 +87,60 @@
                 </label>
             </div>
         </header>
+
+        <!-- FITUR FILTER (BARU) -->
+        <div id="filterSection" class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 hidden flex-col xl:flex-row gap-3 xl:items-end relative z-40">
+            
+            <!-- Filter Tanggal -->
+            <div class="flex gap-2 w-full xl:w-auto">
+                <div class="flex-1 xl:w-36">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Tanggal</label>
+                    <input type="date" id="filterStartDate" onchange="refreshFilterUI()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 shadow-inner">
+                </div>
+                <div class="flex-1 xl:w-36">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Sampai Tanggal</label>
+                    <input type="date" id="filterEndDate" onchange="refreshFilterUI()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 shadow-inner">
+                </div>
+            </div>
+
+            <!-- Filter Multi-select Dropdown -->
+            <div class="flex-1 flex flex-col md:flex-row gap-2 w-full">
+                <!-- Dropdown HUB -->
+                <div class="relative flex-1">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Filter HUB</label>
+                    <button onclick="toggleFilterDropdown(event, 'hubDropdown')" id="btnHubDropdown" class="w-full text-left text-xs p-2 border border-slate-200 rounded-lg bg-white flex justify-between items-center hover:bg-slate-50 focus:ring-2 focus:ring-blue-200 outline-none transition-colors shadow-sm">
+                        <span class="truncate text-slate-500">Semua Terpilih</span> <i class="ph ph-caret-down text-slate-400"></i>
+                    </button>
+                    <div id="hubDropdown" class="hidden absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 shadow-xl rounded-lg max-h-60 overflow-y-auto z-50 p-1.5 flex flex-col gap-0.5"></div>
+                </div>
+                
+                <!-- Dropdown Staging -->
+                <div class="relative flex-1">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Filter Staging</label>
+                    <button onclick="toggleFilterDropdown(event, 'stagingDropdown')" id="btnStgDropdown" class="w-full text-left text-xs p-2 border border-slate-200 rounded-lg bg-white flex justify-between items-center hover:bg-slate-50 focus:ring-2 focus:ring-blue-200 outline-none transition-colors shadow-sm">
+                        <span class="truncate text-slate-500">Semua Terpilih</span> <i class="ph ph-caret-down text-slate-400"></i>
+                    </button>
+                    <div id="stagingDropdown" class="hidden absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 shadow-xl rounded-lg max-h-60 overflow-y-auto z-50 p-1.5 flex flex-col gap-0.5"></div>
+                </div>
+                
+                <!-- Dropdown Operator/Kurir -->
+                <div class="relative flex-1">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kurir (Nama/NIK)</label>
+                    <button onclick="toggleFilterDropdown(event, 'operatorDropdown')" id="btnOpDropdown" class="w-full text-left text-xs p-2 border border-slate-200 rounded-lg bg-white flex justify-between items-center hover:bg-slate-50 focus:ring-2 focus:ring-blue-200 outline-none transition-colors shadow-sm">
+                        <span class="truncate text-slate-500">Semua Terpilih</span> <i class="ph ph-caret-down text-slate-400"></i>
+                    </button>
+                    <div id="operatorDropdown" class="hidden absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 shadow-xl rounded-lg max-h-60 overflow-y-auto z-50 p-1.5 flex flex-col gap-0.5"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2 w-full xl:w-auto shrink-0 mt-2 xl:mt-0">
+                <button onclick="resetFilters()" class="flex-1 xl:flex-none px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-lg transition-colors border border-slate-200 outline-none focus:ring-2 focus:ring-slate-300">Reset</button>
+                <button onclick="applyAllFiltersAndRender()" class="flex-1 xl:flex-none px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm shadow-blue-500/30 transition-colors flex justify-center items-center gap-1.5 outline-none focus:ring-2 focus:ring-blue-400 active:scale-95">
+                    <i class="ph-bold ph-funnel text-sm"></i> Terapkan
+                </button>
+            </div>
+        </div>
 
         <div id="uploadProgress" class="hidden bg-white p-4 rounded-xl shadow-sm border border-blue-100 flex-col gap-2 relative overflow-hidden">
              <div class="absolute inset-0 bg-blue-50/50"></div>
@@ -129,90 +183,94 @@
             </label>
         </div>
 
-        <!-- KPI CARDS LAYOUT: Grid 6 kolom untuk memuat tepat 2 baris di mobile (3 kartu diatas, 2 dibawah) -->
-        <div id="summaryCards" class="grid grid-cols-6 lg:grid-cols-5 gap-2 md:gap-3 hidden">
+        <!-- KPI CARDS LAYOUT: Grid responsif 12-kolom (Mobile: 2 baris | Desktop: 1 baris) -->
+        <div id="summaryCards" class="grid grid-cols-6 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 hidden z-10 relative">
             
             <!-- Card 1: Total Paket -->
-            <div class="col-span-2 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-200 transition-colors group relative overflow-hidden flex flex-col justify-between">
-                <div class="absolute -right-4 -top-4 w-12 h-12 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
-                <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between mb-1.5 md:mb-2 gap-1.5">
-                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Total Paket</p>
-                    <div class="p-1 md:p-1.5 bg-blue-50 text-blue-600 rounded-md w-fit self-start xl:self-auto"><i class="ph ph-stack text-sm md:text-base"></i></div>
+            <div class="col-span-2 lg:col-span-1 bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-full relative overflow-hidden group hover:border-blue-300 transition-all">
+                <div class="absolute -right-6 -top-6 w-16 h-16 bg-blue-50/50 rounded-full group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col h-full">
+                    <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 mb-2 md:mb-3">
+                        <i class="ph ph-stack text-base md:text-lg"></i>
+                    </div>
+                    <div class="mt-auto">
+                        <p class="text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider leading-tight mb-0.5">Total Paket</p>
+                        <h4 class="text-base sm:text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-none" id="totalPaket">0</h4>
+                    </div>
                 </div>
-                <p class="relative z-10 text-base sm:text-lg md:text-2xl font-black text-slate-900 tracking-tight" id="totalPaket">0</p>
             </div>
-            
+
             <!-- Card 2: Total Hub -->
-            <div class="col-span-2 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-200 transition-colors group relative overflow-hidden flex flex-col justify-between">
-                <div class="absolute -right-4 -top-4 w-12 h-12 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
-                <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between mb-1.5 md:mb-2 gap-1.5">
-                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Total Hub</p>
-                    <div class="p-1 md:p-1.5 bg-indigo-50 text-indigo-600 rounded-md w-fit self-start xl:self-auto"><i class="ph ph-buildings text-sm md:text-base"></i></div>
+            <div class="col-span-2 lg:col-span-1 bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-full relative overflow-hidden group hover:border-indigo-300 transition-all">
+                <div class="absolute -right-6 -top-6 w-16 h-16 bg-indigo-50/50 rounded-full group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col h-full">
+                    <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 mb-2 md:mb-3">
+                        <i class="ph ph-buildings text-base md:text-lg"></i>
+                    </div>
+                    <div class="mt-auto">
+                        <p class="text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider leading-tight mb-0.5">Total Hub</p>
+                        <h4 class="text-base sm:text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-none" id="totalHub">0</h4>
+                    </div>
                 </div>
-                <p class="relative z-10 text-base sm:text-lg md:text-2xl font-black text-slate-900 tracking-tight" id="totalHub">0</p>
             </div>
 
             <!-- Card 3: Rasio COD -->
-            <div class="col-span-2 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full">
-                <div class="flex items-center gap-1 md:gap-1.5 mb-1.5 md:mb-2">
-                    <i class="ph-fill ph-money text-emerald-500 text-xs md:text-sm shrink-0"></i>
-                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight truncate">Rasio COD</p>
+            <div class="col-span-2 lg:col-span-1 bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full hover:border-emerald-300 transition-all">
+                <div class="flex items-center gap-1.5 mb-3 md:mb-4">
+                    <i class="ph-fill ph-money text-emerald-500 text-sm md:text-base"></i>
+                    <p class="text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider leading-tight truncate">Rasio COD</p>
                 </div>
-                <div class="w-full space-y-1.5 md:space-y-1.5">
-                    <div class="flex flex-col 2xl:flex-row 2xl:justify-between 2xl:items-center group gap-0.5">
-                        <span class="text-[9px] sm:text-[10px] md:text-xs font-medium text-emerald-700 flex items-center gap-1 truncate"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div> YES</span>
-                        <span class="text-[10px] md:text-xs font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded group-hover:bg-emerald-50 transition-colors w-fit" id="totalCodYes">0</span>
+                <div class="mt-auto space-y-1.5 md:space-y-2 w-full">
+                    <div class="flex justify-between items-center text-[10px] md:text-xs">
+                        <span class="font-medium text-emerald-700 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> YES</span>
+                        <span class="font-bold text-slate-800 bg-emerald-50/50 px-1.5 py-0.5 rounded" id="totalCodYes">0</span>
                     </div>
-                    <div class="flex flex-col 2xl:flex-row 2xl:justify-between 2xl:items-center group gap-0.5">
-                        <span class="text-[9px] sm:text-[10px] md:text-xs font-medium text-slate-600 flex items-center gap-1 truncate"><div class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></div> NO</span>
-                        <span class="text-[10px] md:text-xs font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded group-hover:bg-slate-100 transition-colors w-fit" id="totalCodNo">0</span>
+                    <div class="flex justify-between items-center text-[10px] md:text-xs">
+                        <span class="font-medium text-slate-600 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> NO</span>
+                        <span class="font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded" id="totalCodNo">0</span>
                     </div>
                 </div>
             </div>
 
             <!-- Card 4: Attempt -->
-            <div class="col-span-3 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full">
-                <div class="flex items-center gap-1.5 mb-2 md:mb-3">
-                    <i class="ph-fill ph-arrows-clockwise text-amber-500 text-xs md:text-sm shrink-0"></i>
-                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Attempt</p>
+            <div class="col-span-3 lg:col-span-1 bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full hover:border-amber-300 transition-all">
+                <div class="flex items-center gap-1.5 mb-2.5 md:mb-3">
+                    <i class="ph-fill ph-arrows-clockwise text-amber-500 text-sm md:text-base"></i>
+                    <p class="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Status Attempt</p>
                 </div>
-                <div class="w-full grid grid-cols-2 gap-x-2 md:gap-x-3 gap-y-1.5 text-[10px] md:text-xs">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sky-700 font-medium truncate pr-1">Att 0</span>
-                        <span class="font-bold text-slate-800" id="totalAtt0">0</span>
+                <div class="grid grid-cols-2 gap-1.5 md:gap-2 mt-auto text-[10px] md:text-xs">
+                    <div class="bg-slate-50 px-2 py-1.5 rounded flex justify-between items-center border border-slate-100/50">
+                        <span class="text-sky-700 font-medium">Att 0</span><span class="font-bold text-slate-800" id="totalAtt0">0</span>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-orange-600 font-medium truncate pr-1">Att 2</span>
-                        <span class="font-bold text-slate-800" id="totalAtt2">0</span>
+                    <div class="bg-slate-50 px-2 py-1.5 rounded flex justify-between items-center border border-slate-100/50">
+                        <span class="text-orange-600 font-medium">Att 2</span><span class="font-bold text-slate-800" id="totalAtt2">0</span>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-amber-600 font-medium truncate pr-1">Att 1</span>
-                        <span class="font-bold text-slate-800" id="totalAtt1">0</span>
+                    <div class="bg-slate-50 px-2 py-1.5 rounded flex justify-between items-center border border-slate-100/50">
+                        <span class="text-amber-600 font-medium">Att 1</span><span class="font-bold text-slate-800" id="totalAtt1">0</span>
                     </div>
-                    <div class="flex justify-between items-center bg-red-50 px-1 rounded">
-                        <span class="text-red-700 font-bold truncate pr-1">Att 3+</span>
-                        <span class="font-black text-red-700" id="totalAtt3Plus">0</span>
+                    <div class="bg-red-50/50 px-2 py-1.5 rounded flex justify-between items-center border border-red-100">
+                        <span class="text-red-700 font-bold">Att 3+</span><span class="font-bold text-red-700" id="totalAtt3Plus">0</span>
                     </div>
                 </div>
             </div>
 
             <!-- Card 5: Status FOP -->
-            <div class="col-span-3 lg:col-span-1 bg-white p-0 rounded-xl shadow-sm border border-slate-200 flex overflow-hidden h-full">
+            <div class="col-span-3 lg:col-span-1 bg-white p-0 rounded-xl border border-slate-200 shadow-sm flex overflow-hidden h-full hover:border-blue-300 transition-all">
                 <div class="w-1.5 bg-gradient-to-b from-cyan-400 via-rose-400 to-sky-400 shrink-0"></div>
-                <div class="p-2.5 md:p-4 flex-1 flex flex-col justify-between">
-                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 md:mb-2 truncate">Status FOP</p>
-                    <div class="w-full space-y-1 md:space-y-1.5 text-[10px] md:text-xs font-medium">
-                        <div class="flex justify-between items-center hover:bg-cyan-50 px-1 md:px-1.5 py-0.5 rounded transition-colors -mx-1 md:-mx-1.5">
-                            <span class="text-cyan-700 flex items-center gap-1 md:gap-1.5 truncate"><i class="ph-fill ph-snowflake text-[9px] md:text-[10px] shrink-0"></i> Freeze</span>
-                            <span class="font-bold text-cyan-900" id="totalFopFreeze">0</span>
+                <div class="p-3 md:p-4 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <p class="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 truncate">Status FOP</p>
+                    <div class="w-full space-y-1.5 md:space-y-2 text-[10px] md:text-xs mt-auto">
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1 md:pb-1.5">
+                            <span class="text-cyan-700 font-medium flex items-center gap-1.5 truncate"><i class="ph-fill ph-snowflake shrink-0"></i> Freeze</span>
+                            <span class="font-bold text-slate-800 pl-1" id="totalFopFreeze">0</span>
                         </div>
-                        <div class="flex justify-between items-center hover:bg-rose-50 px-1 md:px-1.5 py-0.5 rounded transition-colors -mx-1 md:-mx-1.5">
-                            <span class="text-rose-700 flex items-center gap-1 md:gap-1.5 truncate"><i class="ph-fill ph-warning-octagon text-[9px] md:text-[10px] shrink-0"></i> Warn</span>
-                            <span class="font-bold text-rose-900" id="totalFopWarning">0</span>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1 md:pb-1.5">
+                            <span class="text-rose-700 font-medium flex items-center gap-1.5 truncate"><i class="ph-fill ph-warning-octagon shrink-0"></i> Warn</span>
+                            <span class="font-bold text-slate-800 pl-1" id="totalFopWarning">0</span>
                         </div>
-                        <div class="flex justify-between items-center hover:bg-sky-50 px-1 md:px-1.5 py-0.5 rounded transition-colors -mx-1 md:-mx-1.5">
-                            <span class="text-sky-700 flex items-center gap-1 md:gap-1.5 truncate"><i class="ph-fill ph-hourglass-high text-[9px] md:text-[10px] shrink-0"></i> Pend</span>
-                            <span class="font-bold text-sky-900" id="totalFopPending">0</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sky-700 font-medium flex items-center gap-1.5 truncate"><i class="ph-fill ph-hourglass-high shrink-0"></i> Pend</span>
+                            <span class="font-bold text-slate-800 pl-1" id="totalFopPending">0</span>
                         </div>
                     </div>
                 </div>
@@ -220,7 +278,7 @@
             
         </div>
 
-        <div id="listContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden flex-col">
+        <div id="listContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden flex-col z-10 relative">
             
             <!-- Controls / Tabs -->
             <div class="p-3 border-b border-slate-200 bg-slate-50 flex flex-col xl:flex-row justify-between items-center gap-3">
@@ -243,7 +301,6 @@
                     <button onclick="switchView('WARNING_STUCK')" id="tabWARNING_STUCK" class="flex-1 xl:flex-none px-3 py-1.5 text-xs font-semibold rounded text-rose-600 hover:bg-rose-100 transition-all whitespace-nowrap flex items-center justify-center gap-1.5">
                         <i class="ph-fill ph-warning-circle"></i> Warn Stuck
                     </button>
-                    <!-- TAB BARU: TOP PENDING -->
                     <button onclick="switchView('TOP_PENDING')" id="tabTOP_PENDING" class="flex-1 xl:flex-none px-3 py-1.5 text-xs font-semibold rounded text-sky-600 hover:bg-sky-100 transition-all whitespace-nowrap flex items-center justify-center gap-1.5">
                         <i class="ph-fill ph-trend-up"></i> Top Pending
                     </button>
@@ -285,7 +342,7 @@
             <div class="p-5 overflow-y-auto bg-slate-50/50 space-y-4 max-h-[70vh]">
                 <div>
                     <label class="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1">
-                        <i class="ph-fill ph-funnel text-blue-500"></i> Filter Lokasi
+                        <i class="ph-fill ph-funnel text-blue-500"></i> Filter Lokasi Base
                     </label>
                     <p class="text-[10px] text-slate-500 mb-1.5">3 digit kode lokasi, pisahkan dengan koma.</p>
                     <textarea id="hubFilterInput" class="w-full h-12 p-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none shadow-inner bg-white"></textarea>
@@ -352,6 +409,15 @@
         window.currentView = 'COD';
         window.copyOptions = [];
 
+        // Global State for UI Filters
+        window.activeFilters = {
+            startDate: '',
+            endDate: '',
+            hubs: [],
+            stagings: [],
+            operators: []
+        };
+
         const savedCopyOpts = localStorage.getItem('copyOptions');
         if (savedCopyOpts) window.copyOptions = JSON.parse(savedCopyOpts);
 
@@ -374,7 +440,7 @@
                 iconHtml = '<i class="ph-fill ph-warning-circle text-rose-400 text-lg"></i>';
             }
 
-            toast.className = `flex items-center gap-2 px-3 py-2.5 rounded-lg shadow-xl text-white text-xs font-medium toast-enter ${bgClass} pointer-events-auto transition-all duration-300`;
+            toast.className = `flex items-center gap-2 px-3 py-2.5 rounded-lg shadow-xl text-white text-xs font-medium toast-enter ${bgClass} pointer-events-auto transition-all duration-300 z-[100] relative`;
             toast.innerHTML = `
                 ${iconHtml}
                 <span>${message}</span>
@@ -399,6 +465,7 @@
             document.getElementById('emptyState').classList.replace('block', 'hidden');
             document.getElementById('summaryCards').classList.replace('grid', 'hidden');
             document.getElementById('listContainer').classList.replace('flex', 'hidden');
+            document.getElementById('filterSection').classList.replace('flex', 'hidden');
 
             try {
                 const setRes = await fetch(`${supabaseUrl}/rest/v1/pengaturan?id=eq.1`, {
@@ -450,7 +517,17 @@
                         receiver_district_name: r.receiver_district_name || ''
                     }));
                     window.rawParsedData = mappedData;
-                    processData(mappedData);
+                    
+                    // Reset Active Filters on full load
+                    window.activeFilters = { startDate: '', endDate: '', hubs: [], stagings: [], operators: [] };
+                    document.getElementById('filterStartDate').value = '';
+                    document.getElementById('filterEndDate').value = '';
+                    
+                    // Initialization sequence
+                    document.getElementById('filterSection').classList.remove('hidden');
+                    document.getElementById('filterSection').classList.add('flex');
+                    refreshFilterUI();
+                    applyAllFiltersAndRender();
                 }
             } catch (err) {
                 console.error(err);
@@ -460,6 +537,243 @@
                 document.getElementById('loadingState').classList.remove('flex');
             }
         }
+
+        // --- FILTER UI & LOGIC CASCADING ---
+        window.toggleFilterDropdown = function(e, id) {
+            e.stopPropagation();
+            ['hubDropdown', 'stagingDropdown', 'operatorDropdown'].forEach(d => {
+                if (d !== id) document.getElementById(d).classList.add('hidden');
+            });
+            document.getElementById(id).classList.toggle('hidden');
+        };
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                ['hubDropdown', 'stagingDropdown', 'operatorDropdown'].forEach(d => {
+                    const el = document.getElementById(d);
+                    if (el) el.classList.add('hidden');
+                });
+            }
+        });
+
+        window.refreshFilterUI = function() {
+            let data = window.rawParsedData;
+
+            // 1. Apply Settings Base Filter (Allowed Hubs)
+            if (window.allowedHubs.length > 0) {
+                data = data.filter(row => {
+                    const hubVal = row.destination_uz || row.destination_hub || '';
+                    return window.allowedHubs.includes(hubVal.trim().substring(0, 3).toUpperCase());
+                });
+            }
+
+            // 2. Apply Date Filter to determine available options
+            const sdInput = document.getElementById('filterStartDate').value;
+            const edInput = document.getElementById('filterEndDate').value;
+            window.activeFilters.startDate = sdInput;
+            window.activeFilters.endDate = edInput;
+
+            if (sdInput) {
+                data = data.filter(r => {
+                    const d = (r.time_scan_internal || r.expect_delivery_tm || '').substring(0, 10);
+                    return d && d >= sdInput;
+                });
+            }
+            if (edInput) {
+                data = data.filter(r => {
+                    const d = (r.time_scan_internal || r.expect_delivery_tm || '').substring(0, 10);
+                    return d && d <= edInput;
+                });
+            }
+
+            // 3. Populate HUBs
+            const allHubs = new Set();
+            data.forEach(r => {
+                 const h = r.destination_uz || r.destination_hub || 'N/A';
+                 allHubs.add(h !== 'N/A' ? h.trim().substring(0, 3).toUpperCase() : h);
+            });
+            const validHubs = Array.from(allHubs).sort();
+            window.activeFilters.hubs = window.activeFilters.hubs.filter(h => validHubs.includes(h)); // Remove invalid
+            renderDropdown('hubDropdown', validHubs, window.activeFilters.hubs, 'hubs', 'btnHubDropdown');
+
+            // 4. Populate Stagings (Based on selected HUBs)
+            let stagingData = data;
+            if (window.activeFilters.hubs.length > 0) {
+                 stagingData = stagingData.filter(r => {
+                      const h = r.destination_uz || r.destination_hub || 'N/A';
+                      return window.activeFilters.hubs.includes(h !== 'N/A' ? h.trim().substring(0, 3).toUpperCase() : h);
+                 });
+            }
+            const allStagings = new Set();
+            stagingData.forEach(r => allStagings.add(r.destination_staging || 'N/A'));
+            const validStagings = Array.from(allStagings).sort();
+            window.activeFilters.stagings = window.activeFilters.stagings.filter(s => validStagings.includes(s)); // Remove invalid
+            renderDropdown('stagingDropdown', validStagings, window.activeFilters.stagings, 'stagings', 'btnStgDropdown');
+
+            // 5. Populate Operators (Based on selected Stagings)
+            let opData = stagingData;
+            if (window.activeFilters.stagings.length > 0) {
+                 opData = opData.filter(r => window.activeFilters.stagings.includes(r.destination_staging || 'N/A'));
+            }
+            const allOpsMap = new Map();
+            opData.forEach(r => {
+                const nik = r.kode_pegawai_internal || r.kode_pegawai_external || r.latest_opcode_nik || 'N/A';
+                const nama = r.nama_operator_internal || 'Tanpa Nama';
+                allOpsMap.set(nik, { nik, nama });
+            });
+            const validOps = Array.from(allOpsMap.values()).sort((a,b) => a.nama.localeCompare(b.nama));
+            const validOpNiks = validOps.map(o => o.nik);
+            window.activeFilters.operators = window.activeFilters.operators.filter(n => validOpNiks.includes(n)); // Remove invalid
+            
+            // Render specific format for Operator Dropdown
+            const opContainer = document.getElementById('operatorDropdown');
+            if(opContainer) {
+                let html = `<label class="flex items-center gap-2 p-2 hover:bg-slate-50 cursor-pointer rounded text-xs font-semibold border-b border-slate-100 mb-1">
+                                <input type="checkbox" onchange="toggleSelectAll('operators')" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5" ${window.activeFilters.operators.length === 0 ? 'checked' : ''}>
+                                <span class="text-slate-800">Semua Pilihan</span>
+                            </label>`;
+                validOps.forEach(opt => {
+                    const isChecked = window.activeFilters.operators.includes(opt.nik);
+                    html += `
+                        <label class="flex items-start gap-2 p-1.5 hover:bg-slate-50 cursor-pointer rounded text-xs">
+                            <input type="checkbox" value="${opt.nik}" onchange="toggleFilterItem('operators', this.value, this.checked)" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 shrink-0 mt-0.5" ${isChecked ? 'checked' : ''}>
+                            <div class="flex flex-col min-w-0">
+                                <span class="font-bold truncate text-slate-700">${opt.nama}</span>
+                                <span class="text-[9px] text-slate-400 font-mono">${opt.nik}</span>
+                            </div>
+                        </label>`;
+                });
+                opContainer.innerHTML = html;
+                updateDropdownBtnText('btnOpDropdown', window.activeFilters.operators.length, validOps.length);
+            }
+        };
+
+        function renderDropdown(containerId, options, selectedArray, filterKey, btnId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            let html = `<label class="flex items-center gap-2 p-2 hover:bg-slate-50 cursor-pointer rounded text-xs font-semibold border-b border-slate-100 mb-1">
+                            <input type="checkbox" onchange="toggleSelectAll('${filterKey}')" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5" ${selectedArray.length === 0 ? 'checked' : ''}>
+                            <span class="text-slate-800">Semua Pilihan</span>
+                        </label>`;
+            
+            options.forEach(opt => {
+                const isChecked = selectedArray.includes(opt);
+                html += `
+                    <label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer rounded text-xs">
+                        <input type="checkbox" value="${opt}" onchange="toggleFilterItem('${filterKey}', this.value, this.checked)" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 shrink-0" ${isChecked ? 'checked' : ''}>
+                        <span class="truncate text-slate-700 font-medium">${opt}</span>
+                    </label>
+                `;
+            });
+            container.innerHTML = html;
+            updateDropdownBtnText(btnId, selectedArray.length, options.length);
+        }
+
+        function updateDropdownBtnText(btnId, selectedCount, totalOptions) {
+            const btn = document.getElementById(btnId);
+            if(!btn) return;
+            const span = btn.querySelector('span');
+            
+            if (selectedCount === 0 || selectedCount === totalOptions) {
+                span.innerText = "Semua Terpilih";
+                span.className = "truncate text-slate-500";
+                btn.classList.remove('border-blue-300', 'bg-blue-50/30');
+            } else {
+                span.innerText = `${selectedCount} Pilihan`;
+                span.className = "truncate font-bold text-blue-700";
+                btn.classList.add('border-blue-300', 'bg-blue-50/30');
+            }
+        }
+
+        window.toggleFilterItem = function(key, value, isChecked) {
+            if (isChecked) {
+                if (!window.activeFilters[key].includes(value)) window.activeFilters[key].push(value);
+            } else {
+                window.activeFilters[key] = window.activeFilters[key].filter(v => v !== value);
+            }
+
+            // Cascading specific reset
+            if (key === 'hubs') {
+                window.activeFilters.stagings = [];
+                window.activeFilters.operators = [];
+            } else if (key === 'stagings') {
+                window.activeFilters.operators = [];
+            }
+            refreshFilterUI();
+        };
+
+        window.toggleSelectAll = function(key) {
+            window.activeFilters[key] = []; // Empty implies All
+            if (key === 'hubs') {
+                window.activeFilters.stagings = [];
+                window.activeFilters.operators = [];
+            } else if (key === 'stagings') {
+                window.activeFilters.operators = [];
+            }
+            refreshFilterUI();
+        };
+
+        window.resetFilters = function() {
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            window.activeFilters = { startDate: '', endDate: '', hubs: [], stagings: [], operators: [] };
+            refreshFilterUI();
+            applyAllFiltersAndRender();
+        };
+
+        // Menggantikan processData saat penerapan filter
+        window.applyAllFiltersAndRender = function() {
+            let data = window.rawParsedData;
+
+            // 1. Settings Filter Base
+            if (window.allowedHubs.length > 0) {
+                data = data.filter(row => {
+                    const hubVal = row.destination_uz || row.destination_hub || '';
+                    return window.allowedHubs.includes(hubVal.trim().substring(0, 3).toUpperCase());
+                });
+            }
+
+            // 2. Date Filter
+            const sdInput = window.activeFilters.startDate;
+            const edInput = window.activeFilters.endDate;
+            if (sdInput) {
+                data = data.filter(r => {
+                    const d = (r.time_scan_internal || r.expect_delivery_tm || '').substring(0, 10);
+                    return d && d >= sdInput;
+                });
+            }
+            if (edInput) {
+                data = data.filter(r => {
+                    const d = (r.time_scan_internal || r.expect_delivery_tm || '').substring(0, 10);
+                    return d && d <= edInput;
+                });
+            }
+
+            // 3. Dropdown Filters
+            if (window.activeFilters.hubs.length > 0) {
+                data = data.filter(r => {
+                     const h = r.destination_uz || r.destination_hub || 'N/A';
+                     return window.activeFilters.hubs.includes(h !== 'N/A' ? h.trim().substring(0, 3).toUpperCase() : h);
+                });
+            }
+            if (window.activeFilters.stagings.length > 0) {
+                data = data.filter(r => {
+                     const stg = r.destination_staging || 'N/A';
+                     return window.activeFilters.stagings.includes(stg);
+                });
+            }
+            if (window.activeFilters.operators.length > 0) {
+                data = data.filter(r => {
+                     const nik = r.kode_pegawai_internal || r.kode_pegawai_external || r.latest_opcode_nik || 'N/A';
+                     return window.activeFilters.operators.includes(nik);
+                });
+            }
+
+            // Eksekusi fungsi processData yang sudah dimodifikasi
+            processDataFiltered(data);
+        };
+        // --- END FILTER UI ---
+
 
         window.openSettings = function() {
             document.getElementById('hubFilterInput').value = window.allowedHubs.join(', ');
@@ -523,7 +837,8 @@
             } catch(e) { console.error('Gagal simpan pengaturan ke DB', e); }
 
             if (window.rawParsedData && window.rawParsedData.length > 0) {
-                processData(window.rawParsedData);
+                refreshFilterUI();
+                applyAllFiltersAndRender();
             }
         };
 
@@ -685,18 +1000,8 @@
             }
         }
 
-        function processData(data) {
-            if (!data.length) return showEmptyState('Belum Ada Data', 'File CSV kosong atau semua data telah terfilter oleh pengaturan sistem.');
-
-            let filteredData = data;
-            if (window.allowedHubs.length > 0) {
-                filteredData = data.filter(row => {
-                    const hubVal = row.destination_uz || row.destination_hub || '';
-                    return window.allowedHubs.includes(hubVal.trim().substring(0, 3).toUpperCase());
-                });
-            }
-
-            if (filteredData.length === 0) return showEmptyState('Data Kosong', 'Tidak ada data yang sesuai dengan kode lokasi di pengaturan.');
+        function processDataFiltered(filteredData) {
+            if (!filteredData.length) return showEmptyState('Data Tidak Ditemukan', 'Tidak ada hasil yang sesuai dengan kriteria filter yang Anda terapkan.');
 
             let maxDateStr = '';
             filteredData.forEach(row => {

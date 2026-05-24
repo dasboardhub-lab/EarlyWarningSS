@@ -129,92 +129,95 @@
             </label>
         </div>
 
-        <div id="summaryCards" class="grid grid-cols-2 lg:grid-cols-5 gap-3 hidden">
-            <!-- Card 1 -->
-            <div class="bg-white p-3.5 md:p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-200 transition-colors group relative overflow-hidden">
+        <!-- KPI CARDS LAYOUT: Grid 6 kolom untuk memuat tepat 2 baris di mobile (3 kartu diatas, 2 dibawah) -->
+        <div id="summaryCards" class="grid grid-cols-6 lg:grid-cols-5 gap-2 md:gap-3 hidden">
+            
+            <!-- Card 1: Total Paket -->
+            <div class="col-span-2 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-200 transition-colors group relative overflow-hidden flex flex-col justify-between">
                 <div class="absolute -right-4 -top-4 w-12 h-12 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
-                <div class="relative z-10 flex items-center justify-between mb-2">
-                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Total Paket</p>
-                    <div class="p-1.5 bg-blue-50 text-blue-600 rounded-md"><i class="ph ph-stack text-base"></i></div>
+                <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between mb-1.5 md:mb-2 gap-1.5">
+                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Total Paket</p>
+                    <div class="p-1 md:p-1.5 bg-blue-50 text-blue-600 rounded-md w-fit self-start xl:self-auto"><i class="ph ph-stack text-sm md:text-base"></i></div>
                 </div>
-                <p class="relative z-10 text-xl md:text-2xl font-black text-slate-900 tracking-tight" id="totalPaket">0</p>
+                <p class="relative z-10 text-base sm:text-lg md:text-2xl font-black text-slate-900 tracking-tight" id="totalPaket">0</p>
             </div>
             
-            <!-- Card 2 -->
-            <div class="bg-white p-3.5 md:p-4 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-200 transition-colors group relative overflow-hidden">
+            <!-- Card 2: Total Hub -->
+            <div class="col-span-2 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-200 transition-colors group relative overflow-hidden flex flex-col justify-between">
                 <div class="absolute -right-4 -top-4 w-12 h-12 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
-                <div class="relative z-10 flex items-center justify-between mb-2">
-                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Total Hub</p>
-                    <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-md"><i class="ph ph-buildings text-base"></i></div>
+                <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between mb-1.5 md:mb-2 gap-1.5">
+                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Total Hub</p>
+                    <div class="p-1 md:p-1.5 bg-indigo-50 text-indigo-600 rounded-md w-fit self-start xl:self-auto"><i class="ph ph-buildings text-sm md:text-base"></i></div>
                 </div>
-                <p class="relative z-10 text-xl md:text-2xl font-black text-slate-900 tracking-tight" id="totalHub">0</p>
+                <p class="relative z-10 text-base sm:text-lg md:text-2xl font-black text-slate-900 tracking-tight" id="totalHub">0</p>
             </div>
 
-            <!-- Card 3 -->
-            <div class="bg-white p-3.5 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full">
-                <div class="flex items-center gap-1.5 mb-2">
-                    <i class="ph-fill ph-money text-emerald-500 text-sm"></i>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Rasio COD</p>
+            <!-- Card 3: Rasio COD -->
+            <div class="col-span-2 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full">
+                <div class="flex items-center gap-1 md:gap-1.5 mb-1.5 md:mb-2">
+                    <i class="ph-fill ph-money text-emerald-500 text-xs md:text-sm shrink-0"></i>
+                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight truncate">Rasio COD</p>
                 </div>
-                <div class="w-full space-y-1.5">
-                    <div class="flex justify-between items-center group">
-                        <span class="text-xs font-medium text-emerald-700 flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> YES</span>
-                        <span class="text-xs font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded group-hover:bg-emerald-50 transition-colors" id="totalCodYes">0</span>
+                <div class="w-full space-y-1.5 md:space-y-1.5">
+                    <div class="flex flex-col 2xl:flex-row 2xl:justify-between 2xl:items-center group gap-0.5">
+                        <span class="text-[9px] sm:text-[10px] md:text-xs font-medium text-emerald-700 flex items-center gap-1 truncate"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div> YES</span>
+                        <span class="text-[10px] md:text-xs font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded group-hover:bg-emerald-50 transition-colors w-fit" id="totalCodYes">0</span>
                     </div>
-                    <div class="flex justify-between items-center group">
-                        <span class="text-xs font-medium text-slate-600 flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div> NO</span>
-                        <span class="text-xs font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded group-hover:bg-slate-100 transition-colors" id="totalCodNo">0</span>
+                    <div class="flex flex-col 2xl:flex-row 2xl:justify-between 2xl:items-center group gap-0.5">
+                        <span class="text-[9px] sm:text-[10px] md:text-xs font-medium text-slate-600 flex items-center gap-1 truncate"><div class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></div> NO</span>
+                        <span class="text-[10px] md:text-xs font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded group-hover:bg-slate-100 transition-colors w-fit" id="totalCodNo">0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 4 -->
-            <div class="bg-white p-3.5 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full col-span-2 lg:col-span-1">
-                <div class="flex items-center gap-1.5 mb-1.5">
-                    <i class="ph-fill ph-arrows-clockwise text-amber-500 text-sm"></i>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Attempt</p>
+            <!-- Card 4: Attempt -->
+            <div class="col-span-3 lg:col-span-1 bg-white p-2.5 md:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full">
+                <div class="flex items-center gap-1.5 mb-2 md:mb-3">
+                    <i class="ph-fill ph-arrows-clockwise text-amber-500 text-xs md:text-sm shrink-0"></i>
+                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Attempt</p>
                 </div>
-                <div class="w-full grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                <div class="w-full grid grid-cols-2 gap-x-2 md:gap-x-3 gap-y-1.5 text-[10px] md:text-xs">
                     <div class="flex justify-between items-center">
-                        <span class="text-sky-700 font-medium">Att 0</span>
+                        <span class="text-sky-700 font-medium truncate pr-1">Att 0</span>
                         <span class="font-bold text-slate-800" id="totalAtt0">0</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-orange-600 font-medium">Att 2</span>
+                        <span class="text-orange-600 font-medium truncate pr-1">Att 2</span>
                         <span class="font-bold text-slate-800" id="totalAtt2">0</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-amber-600 font-medium">Att 1</span>
+                        <span class="text-amber-600 font-medium truncate pr-1">Att 1</span>
                         <span class="font-bold text-slate-800" id="totalAtt1">0</span>
                     </div>
                     <div class="flex justify-between items-center bg-red-50 px-1 rounded">
-                        <span class="text-red-700 font-bold">Att 3+</span>
+                        <span class="text-red-700 font-bold truncate pr-1">Att 3+</span>
                         <span class="font-black text-red-700" id="totalAtt3Plus">0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 5 -->
-            <div class="bg-white p-0 rounded-xl shadow-sm border border-slate-200 flex overflow-hidden col-span-2 lg:col-span-1">
-                <div class="w-1.5 bg-gradient-to-b from-cyan-400 via-rose-400 to-sky-400"></div>
-                <div class="p-3.5 md:p-4 flex-1 flex flex-col justify-between">
-                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Status FOP</p>
-                    <div class="w-full space-y-1 text-xs font-medium">
-                        <div class="flex justify-between items-center hover:bg-cyan-50 px-1.5 py-0.5 rounded transition-colors -mx-1.5">
-                            <span class="text-cyan-700 flex items-center gap-1.5"><i class="ph-fill ph-snowflake text-[10px]"></i> Freeze</span>
+            <!-- Card 5: Status FOP -->
+            <div class="col-span-3 lg:col-span-1 bg-white p-0 rounded-xl shadow-sm border border-slate-200 flex overflow-hidden h-full">
+                <div class="w-1.5 bg-gradient-to-b from-cyan-400 via-rose-400 to-sky-400 shrink-0"></div>
+                <div class="p-2.5 md:p-4 flex-1 flex flex-col justify-between">
+                    <p class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 md:mb-2 truncate">Status FOP</p>
+                    <div class="w-full space-y-1 md:space-y-1.5 text-[10px] md:text-xs font-medium">
+                        <div class="flex justify-between items-center hover:bg-cyan-50 px-1 md:px-1.5 py-0.5 rounded transition-colors -mx-1 md:-mx-1.5">
+                            <span class="text-cyan-700 flex items-center gap-1 md:gap-1.5 truncate"><i class="ph-fill ph-snowflake text-[9px] md:text-[10px] shrink-0"></i> Freeze</span>
                             <span class="font-bold text-cyan-900" id="totalFopFreeze">0</span>
                         </div>
-                        <div class="flex justify-between items-center hover:bg-rose-50 px-1.5 py-0.5 rounded transition-colors -mx-1.5">
-                            <span class="text-rose-700 flex items-center gap-1.5"><i class="ph-fill ph-warning-octagon text-[10px]"></i> Warning</span>
+                        <div class="flex justify-between items-center hover:bg-rose-50 px-1 md:px-1.5 py-0.5 rounded transition-colors -mx-1 md:-mx-1.5">
+                            <span class="text-rose-700 flex items-center gap-1 md:gap-1.5 truncate"><i class="ph-fill ph-warning-octagon text-[9px] md:text-[10px] shrink-0"></i> Warn</span>
                             <span class="font-bold text-rose-900" id="totalFopWarning">0</span>
                         </div>
-                        <div class="flex justify-between items-center hover:bg-sky-50 px-1.5 py-0.5 rounded transition-colors -mx-1.5">
-                            <span class="text-sky-700 flex items-center gap-1.5"><i class="ph-fill ph-hourglass-high text-[10px]"></i> Pending</span>
+                        <div class="flex justify-between items-center hover:bg-sky-50 px-1 md:px-1.5 py-0.5 rounded transition-colors -mx-1 md:-mx-1.5">
+                            <span class="text-sky-700 flex items-center gap-1 md:gap-1.5 truncate"><i class="ph-fill ph-hourglass-high text-[9px] md:text-[10px] shrink-0"></i> Pend</span>
                             <span class="font-bold text-sky-900" id="totalFopPending">0</span>
                         </div>
                     </div>
                 </div>
             </div>
+            
         </div>
 
         <div id="listContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden flex-col">

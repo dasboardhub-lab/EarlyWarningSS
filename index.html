@@ -256,7 +256,7 @@
             <!-- The Data Table -->
             <div class="overflow-x-auto max-h-[65vh] w-full relative">
                 <table class="w-full text-left border-collapse min-w-[900px]">
-                    <thead id="tableHead" class="sticky top-0 z-30 shadow-sm border-b border-slate-200">
+                    <thead id="tableHead" class="sticky top-0 z-30 shadow-sm border-b border-slate-200 bg-slate-50">
                         <!-- Injected by JS -->
                     </thead>
                     <tbody id="tableBody" class="text-xs text-slate-700 divide-y divide-slate-100 bg-white">
@@ -937,7 +937,7 @@
 
         function makeBtn(count, type, cat, colorCls, hIdx, sIdx, nIdx) {
             if (count === 0) return `<span class="text-slate-300 font-normal">-</span>`;
-            return `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, '${type}', '${cat}', this)" class="px-2.5 py-1 text-xs rounded-md ${colorCls} font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap w-full min-w-[3rem] flex items-center justify-center gap-1 mx-auto hover:-translate-y-px hover:shadow-md" title="Klik untuk salin">
+            return `<button onclick="copyDirectWA(${hIdx}, ${sIdx}, ${nIdx}, '${type}', '${cat}', this)" class="px-1.5 sm:px-2.5 py-1 text-[10px] sm:text-xs rounded-md ${colorCls} font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap w-full min-w-[2.5rem] flex items-center justify-center gap-1 mx-auto hover:-translate-y-px hover:shadow-md" title="Klik untuk salin">
                         <i class="ph ph-copy opacity-70"></i> ${count}
                     </button>`;
         }
@@ -947,15 +947,21 @@
             const tbody = document.getElementById('tableBody');
             
             let theadHtml = '';
-            // CSS Padat (Compact)
-            const thStyle = "px-3 py-2.5 font-bold text-[11px] uppercase tracking-wider align-middle";
-            const thStickyLeft = `${thStyle} min-w-[220px] sticky left-0 bg-white z-40 sticky-col-shadow border-r border-slate-200`;
+            // Responsive CSS Padat
+            const thStyle = "px-2 sm:px-3 py-2 sm:py-2.5 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider align-middle";
+            // Set maximum width only strictly for mobile. For md+ screens it restores the natural min-width.
+            const thStickyLeft = `${thStyle} w-[140px] min-w-[140px] max-w-[140px] sm:w-auto sm:min-w-[220px] sm:max-w-none sticky left-0 bg-white z-40 sticky-col-shadow border-r border-slate-200`;
+
+            const stickyHeaderName = `
+                <span class="sm:hidden block truncate w-full text-center">NAMA OP/NIK</span>
+                <span class="hidden sm:block truncate w-full">NAMA OPERATOR / NIK</span>
+            `;
 
             if (window.currentView === 'TOP_PENDING') {
                 theadHtml = `
                     <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="${thStyle} text-center w-16 bg-slate-50 sticky left-0 z-40 sticky-col-shadow border-r border-slate-200">Rank</th>
-                        <th class="${thStyle} bg-slate-50/50">Lokasi (HUB - Staging)</th>
+                        <th class="${thStyle} text-center w-12 sm:w-16 min-w-[48px] sm:min-w-[64px] bg-slate-50 sticky left-0 z-40 sticky-col-shadow border-r border-slate-200">Rank</th>
+                        <th class="${thStyle} bg-slate-50/50">Lokasi <span class="hidden sm:inline">(HUB - Staging)</span></th>
                         <th class="${thStyle} bg-slate-50/50 border-l border-slate-200">Nama Operator / NIK</th>
                         <th class="${thStyle} text-center text-sky-800 bg-sky-100/50 border-x border-slate-200">Total Pending</th>
                         <th class="${thStyle} text-center bg-slate-50/50">Aksi</th>
@@ -964,7 +970,7 @@
             } else if (window.currentView === 'TARGET') {
                 theadHtml = `
                     <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="${thStickyLeft} bg-slate-50">Nama Operator / NIK</th>
+                        <th class="${thStickyLeft} bg-slate-50">${stickyHeaderName}</th>
                         <th class="${thStyle} text-center text-slate-500 border-x border-slate-200 bg-slate-50/50">Total Paket</th>
                         <th class="${thStyle} text-center text-rose-700 bg-rose-50/30">Over SLA</th>
                         <th class="${thStyle} text-center text-amber-700 bg-amber-50/30">Last Day</th>
@@ -973,10 +979,10 @@
                     </tr>
                 `;
             } else if (window.currentView === 'WARNING_STUCK') {
-                let warnHeaders = window.warningFops.map(fop => `<th class="${thStyle} text-center min-w-[60px] border-x border-rose-100 bg-rose-50/30 text-rose-800">${fop}</th>`).join('');
+                let warnHeaders = window.warningFops.map(fop => `<th class="${thStyle} text-center min-w-[50px] sm:min-w-[60px] border-x border-rose-100 bg-rose-50/30 text-rose-800">${fop}</th>`).join('');
                 theadHtml = `
                     <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="${thStickyLeft} bg-slate-50">Nama Operator / NIK</th>
+                        <th class="${thStickyLeft} bg-slate-50">${stickyHeaderName}</th>
                         <th class="${thStyle} text-center text-slate-500 border-x border-slate-200 bg-slate-50/50">Total Stuck</th>
                         ${warnHeaders}
                     </tr>
@@ -984,7 +990,7 @@
             } else if (window.currentView === 'COD') {
                 theadHtml = `
                     <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="${thStickyLeft} bg-slate-50">Nama Operator / NIK</th>
+                        <th class="${thStickyLeft} bg-slate-50">${stickyHeaderName}</th>
                         <th class="${thStyle} text-center text-slate-500 border-x border-slate-200 bg-slate-50/50">Total Paket</th>
                         <th class="${thStyle} text-center text-emerald-700 bg-emerald-50/30">COD YES</th>
                         <th class="${thStyle} text-center text-slate-600 bg-slate-100/50">COD NO</th>
@@ -993,7 +999,7 @@
             } else if (window.currentView === 'ATTEMPT') {
                 theadHtml = `
                     <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="${thStickyLeft} bg-slate-50">Nama Operator / NIK</th>
+                        <th class="${thStickyLeft} bg-slate-50">${stickyHeaderName}</th>
                         <th class="${thStyle} text-center text-slate-500 border-x border-slate-200 bg-slate-50/50">Total Paket</th>
                         <th class="${thStyle} text-center text-sky-700 bg-sky-50/30">ATT 0</th>
                         <th class="${thStyle} text-center text-amber-700 bg-amber-50/30">ATT 1</th>
@@ -1002,21 +1008,21 @@
                 </tr>
             `;
         } else {
-            let warnHeaders = window.warningFops.map(fop => `<th class="px-2 py-2 font-bold text-[10px] uppercase tracking-wider text-center min-w-[50px] border-x border-rose-200">${fop}</th>`).join('');
-            let pendHeaders = window.pendingFops.map(fop => `<th class="px-2 py-2 font-bold text-[10px] uppercase tracking-wider text-center min-w-[50px] border-x border-sky-200">${fop}</th>`).join('');
+            let warnHeaders = window.warningFops.map(fop => `<th class="px-1.5 sm:px-2 py-1.5 sm:py-2 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center min-w-[40px] sm:min-w-[50px] border-x border-rose-200">${fop}</th>`).join('');
+            let pendHeaders = window.pendingFops.map(fop => `<th class="px-1.5 sm:px-2 py-1.5 sm:py-2 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center min-w-[40px] sm:min-w-[50px] border-x border-sky-200">${fop}</th>`).join('');
 
             theadHtml = `
                 <tr class="bg-slate-50">
-                    <th rowspan="2" class="${thStickyLeft} bg-slate-50">Nama Operator / NIK</th>
-                    <th colspan="1" class="px-3 py-1.5 font-bold text-[10px] uppercase tracking-wider text-center text-cyan-800 bg-cyan-100/50 border-x border-cyan-200">Kategori Freeze</th>
-                    <th colspan="${1 + window.warningFops.length}" class="px-3 py-1.5 font-bold text-[10px] uppercase tracking-wider text-center text-rose-800 bg-rose-100/50 border-x border-rose-200">Kategori Warning</th>
-                    <th colspan="${1 + window.pendingFops.length}" class="px-3 py-1.5 font-bold text-[10px] uppercase tracking-wider text-center text-sky-800 bg-sky-100/50 border-x border-sky-200">Kategori Pending</th>
+                    <th rowspan="2" class="${thStickyLeft} bg-slate-50">${stickyHeaderName}</th>
+                    <th colspan="1" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-cyan-800 bg-cyan-100/50 border-x border-cyan-200">Kat. Freeze</th>
+                    <th colspan="${1 + window.warningFops.length}" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-rose-800 bg-rose-100/50 border-x border-rose-200">Kat. Warning</th>
+                    <th colspan="${1 + window.pendingFops.length}" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-sky-800 bg-sky-100/50 border-x border-sky-200">Kat. Pending</th>
                 </tr>
                 <tr class="bg-slate-50">
-                    <th class="px-3 py-2 font-bold text-[10px] uppercase tracking-wider text-center text-cyan-700 bg-cyan-50 border-x border-cyan-200">92</th>
-                    <th class="px-3 py-2 font-bold text-[10px] uppercase tracking-wider text-center text-rose-700 bg-rose-50 border-x border-rose-200">Total Warn</th>
+                    <th class="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-cyan-700 bg-cyan-50 border-x border-cyan-200">92</th>
+                    <th class="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-rose-700 bg-rose-50 border-x border-rose-200">Tot Warn</th>
                     ${warnHeaders}
-                    <th class="px-3 py-2 font-bold text-[10px] uppercase tracking-wider text-center text-sky-700 bg-sky-50 border-x border-sky-200">Total Pend</th>
+                    <th class="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-sky-700 bg-sky-50 border-x border-sky-200">Tot Pend</th>
                     ${pendHeaders}
                 </tr>
             `;
@@ -1024,8 +1030,8 @@
         thead.innerHTML = theadHtml;
 
         let html = '';
-        const tdStyle = "px-3 py-2 text-center align-middle";
-        const tdStickyLeft = "px-3 py-2 sticky left-0 z-20 sticky-col-shadow border-r border-slate-200";
+        const tdStyle = "px-2 sm:px-3 py-2 text-center align-middle text-[11px] sm:text-xs";
+        const tdStickyLeft = "px-2 sm:px-3 py-2 sticky left-0 z-20 sticky-col-shadow border-r border-slate-200 w-[140px] min-w-[140px] max-w-[140px] sm:w-auto sm:min-w-[220px] sm:max-w-none";
 
         if (window.currentView === 'TOP_PENDING') {
             // -- LOGIKA UNTUK TABEL TOP PENDING (FLAT LIST) --
@@ -1053,18 +1059,18 @@
             topPendingOperators.forEach((item, idx) => {
                 html += `
                     <tr class="bg-white hover:bg-slate-50 border-b border-slate-100 transition-colors group">
-                        <td class="${tdStyle} font-bold text-slate-400 sticky left-0 z-20 bg-white sticky-col-shadow border-r border-slate-200 group-hover:bg-slate-50">#${idx + 1}</td>
-                        <td class="px-3 py-2 align-middle text-left border-r border-slate-100">
-                            <div class="font-bold text-slate-700 text-[11px] uppercase">${item.hubName}</div>
-                            <div class="text-[10px] text-slate-500">${item.stagingName}</div>
+                        <td class="${tdStyle} font-bold text-slate-400 sticky left-0 z-20 bg-white sticky-col-shadow border-r border-slate-200 group-hover:bg-slate-50 w-12 sm:w-16 min-w-[48px] sm:min-w-[64px]">#${idx + 1}</td>
+                        <td class="px-2 sm:px-3 py-2 align-middle text-left border-r border-slate-100">
+                            <div class="font-bold text-slate-700 text-[10px] sm:text-[11px] uppercase truncate max-w-[100px] sm:max-w-[180px]">${item.hubName}</div>
+                            <div class="text-[9px] sm:text-[10px] text-slate-500 truncate max-w-[100px] sm:max-w-[180px]">${item.stagingName}</div>
                         </td>
-                        <td class="px-3 py-2 align-middle text-left border-r border-slate-100">
-                             <div class="font-bold text-slate-800 text-[11px] leading-tight">${item.opName}</div>
-                             <div class="text-[9px] text-slate-400 font-mono mt-0.5 tracking-wider bg-slate-100 px-1 rounded inline-block w-fit">${item.opNik}</div>
+                        <td class="px-2 sm:px-3 py-2 align-middle text-left border-r border-slate-100">
+                             <div class="font-bold text-slate-800 text-[10px] sm:text-[11px] leading-tight truncate max-w-[120px] sm:max-w-[200px]">${item.opName}</div>
+                             <div class="text-[8px] sm:text-[9px] text-slate-400 font-mono mt-0.5 tracking-wider bg-slate-100 px-1 rounded inline-block w-fit truncate max-w-[100px] sm:max-w-[200px]">${item.opNik}</div>
                         </td>
                         <td class="${tdStyle} font-bold text-sky-700 bg-sky-50/10 border-r border-slate-100">${item.countPending}</td>
                         <td class="${tdStyle}">
-                            <button onclick="copyAllPendingWA(${item.hIdx}, ${item.sIdx}, ${item.nIdx}, this)" class="px-2.5 py-1 text-xs rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap inline-flex items-center gap-1 mx-auto hover:bg-sky-100 hover:-translate-y-px hover:shadow-md">
+                            <button onclick="copyAllPendingWA(${item.hIdx}, ${item.sIdx}, ${item.nIdx}, this)" class="px-2 py-1 text-[10px] sm:text-xs rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap inline-flex items-center gap-1 mx-auto hover:bg-sky-100 hover:-translate-y-px hover:shadow-md">
                                 <i class="ph ph-copy opacity-70"></i> Salin
                             </button>
                         </td>
@@ -1073,7 +1079,7 @@
             });
             
             if (topPendingOperators.length === 0) {
-                html = `<tr><td colspan="5" class="text-center py-8 text-slate-400 text-xs font-medium">Tidak ada data paket pending di semua lokasi saat ini.</td></tr>`;
+                html = `<tr><td colspan="5" class="text-center py-8 text-slate-400 text-[11px] sm:text-xs font-medium">Tidak ada data paket pending di semua lokasi saat ini.</td></tr>`;
             }
         } else {
             // -- LOGIKA UNTUK TABEL HIERARKI DEFAULT --
@@ -1082,55 +1088,55 @@
                 let hubRowCols = '';
                 
                 if (window.currentView === 'TARGET') {
-                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[11px] font-bold shadow-sm">${hub.count}</span></td>`;
+                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] sm:text-[11px] font-bold shadow-sm">${hub.count}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-rose-700">${hub.target.overSla.count}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-amber-700">${hub.target.lastDay.count}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-blue-700">${hub.target.sameday.count}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-emerald-700">${hub.target.more2Days.count}</span></td>`;
                 } else if (window.currentView === 'WARNING_STUCK') {
-                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[11px] font-bold shadow-sm">${hub.warningStuck.count}</span></td>`;
+                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] sm:text-[11px] font-bold shadow-sm">${hub.warningStuck.count}</span></td>`;
                     hubRowCols += window.warningFops.map(fop => {
                         const count = hub.warningStuck.fops[fop] ? hub.warningStuck.fops[fop].count : 0;
-                        return `<td class="${tdStyle} border-x border-slate-100"><span class="${count>0 ? 'text-rose-700 font-bold' : 'text-slate-300'} text-xs">${count > 0 ? count : '-'}</span></td>`;
+                        return `<td class="${tdStyle} border-x border-slate-100"><span class="${count>0 ? 'text-rose-700 font-bold' : 'text-slate-300'} text-[11px] sm:text-xs">${count > 0 ? count : '-'}</span></td>`;
                     }).join('');
                 } else if (window.currentView === 'COD') {
-                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[11px] font-bold shadow-sm">${hub.count}</span></td>`;
+                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] sm:text-[11px] font-bold shadow-sm">${hub.count}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-emerald-700">${hub.countCodYes}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-slate-600">${hub.countCodNo}</span></td>`;
                 } else if (window.currentView === 'ATTEMPT') {
-                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[11px] font-bold shadow-sm">${hub.count}</span></td>`;
+                    hubRowCols += `<td class="${tdStyle} bg-slate-50 border-x border-slate-200"><span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] sm:text-[11px] font-bold shadow-sm">${hub.count}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-sky-700">${hub.countAtt0}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-amber-700">${hub.countAtt1}</span></td>`;
                     hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-orange-700">${hub.countAtt2}</span></td>`;
                 hubRowCols += `<td class="${tdStyle}"><span class="font-bold text-rose-700">${hub.countAtt3Plus}</span></td>`;
             } else {
                 const c92 = hub.fops['92'] ? hub.fops['92'].count : 0;
-                hubRowCols += `<td class="${tdStyle} bg-cyan-50/30 border-x border-cyan-200"><span class="${c92>0 ? 'text-cyan-700 font-bold' : 'text-slate-300'} text-xs">${c92 > 0 ? c92 : '-'}</span></td>`;
+                hubRowCols += `<td class="${tdStyle} bg-cyan-50/30 border-x border-cyan-200"><span class="${c92>0 ? 'text-cyan-700 font-bold' : 'text-slate-300'} text-[11px] sm:text-xs">${c92 > 0 ? c92 : '-'}</span></td>`;
 
                 hubRowCols += `<td class="${tdStyle} bg-rose-50/30 border-l border-rose-200"><span class="font-bold text-rose-800">${hub.countWarning}</span></td>`;
                 hubRowCols += window.warningFops.map(fop => {
                         const count = hub.fops[fop] ? hub.fops[fop].count : 0;
-                        return `<td class="${tdStyle} border-x border-rose-100"><span class="${count>0 ? 'text-rose-700 font-bold' : 'text-slate-300'} text-xs">${count > 0 ? count : '-'}</span></td>`;
+                        return `<td class="${tdStyle} border-x border-rose-100"><span class="${count>0 ? 'text-rose-700 font-bold' : 'text-slate-300'} text-[11px] sm:text-xs">${count > 0 ? count : '-'}</span></td>`;
                     }).join('');
 
                     hubRowCols += `<td class="${tdStyle} bg-sky-50/30 border-l border-sky-200"><span class="font-bold text-sky-800">${hub.countPending}</span></td>`;
                     hubRowCols += window.pendingFops.map(fop => {
                         const count = hub.fops[fop] ? hub.fops[fop].count : 0;
-                        return `<td class="${tdStyle} border-x border-sky-100"><span class="${count>0 ? 'text-sky-700 font-bold' : 'text-slate-300'} text-xs">${count > 0 ? count : '-'}</span></td>`;
+                        return `<td class="${tdStyle} border-x border-sky-100"><span class="${count>0 ? 'text-sky-700 font-bold' : 'text-slate-300'} text-[11px] sm:text-xs">${count > 0 ? count : '-'}</span></td>`;
                     }).join('');
                 }
 
                 html += `
                     <tr class="bg-slate-100 cursor-pointer hover:bg-slate-200/70 group border-b-2 border-slate-200" onclick="toggleLevel('hub_${hIdx}')" id="hub_${hIdx}">
                         <td class="${tdStickyLeft} bg-slate-100 group-hover:bg-slate-200/70 transition-colors">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-5 h-5 flex items-center justify-center bg-white rounded shadow-sm border border-slate-200">
+                            <div class="flex items-center gap-1.5 md:gap-2.5 overflow-hidden min-w-0">
+                                <div class="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center bg-white rounded shadow-sm border border-slate-200 shrink-0">
                                     <i class="chevron ph-bold ph-caret-right text-slate-500 text-[10px]"></i>
                                 </div>
-                                <div class="p-1 bg-indigo-100 text-indigo-700 rounded-md">
+                                <div class="p-1 bg-indigo-100 text-indigo-700 rounded-md shrink-0 hidden sm:block">
                                     <i class="ph-fill ph-buildings text-base"></i>
                                 </div>
-                                <span class="font-bold text-slate-800 uppercase tracking-wide text-xs">${hub.name}</span>
+                                <span class="font-bold text-slate-800 uppercase tracking-wide text-[10px] sm:text-xs truncate block">${hub.name}</span>
                             </div>
                         </td>
                         ${hubRowCols}
@@ -1140,53 +1146,53 @@
                     let stgRowCols = '';
                     
                     if (window.currentView === 'TARGET') {
-                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[11px] font-bold">${staging.count}</span></td>`;
+                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] sm:text-[11px] font-bold">${staging.count}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-rose-600">${staging.target.overSla.count}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-amber-600">${staging.target.lastDay.count}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-blue-600">${staging.target.sameday.count}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-emerald-600">${staging.target.more2Days.count}</span></td>`;
                     } else if (window.currentView === 'WARNING_STUCK') {
-                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[11px] font-bold">${staging.warningStuck.count}</span></td>`;
+                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] sm:text-[11px] font-bold">${staging.warningStuck.count}</span></td>`;
                         stgRowCols += window.warningFops.map(fop => {
                             const count = staging.warningStuck.fops[fop] ? staging.warningStuck.fops[fop].count : 0;
-                            return `<td class="${tdStyle} border-x border-slate-50"><span class="${count>0 ? 'text-rose-600 font-semibold' : 'text-slate-300'} text-xs">${count > 0 ? count : '-'}</span></td>`;
+                            return `<td class="${tdStyle} border-x border-slate-50"><span class="${count>0 ? 'text-rose-600 font-semibold' : 'text-slate-300'} text-[11px] sm:text-xs">${count > 0 ? count : '-'}</span></td>`;
                         }).join('');
                     } else if (window.currentView === 'COD') {
-                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[11px] font-bold">${staging.count}</span></td>`;
+                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] sm:text-[11px] font-bold">${staging.count}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-emerald-600">${staging.countCodYes}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-slate-500">${staging.countCodNo}</span></td>`;
                     } else if (window.currentView === 'ATTEMPT') {
-                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[11px] font-bold">${staging.count}</span></td>`;
+                        stgRowCols += `<td class="${tdStyle} bg-blue-50/30 border-x border-blue-100/50"><span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] sm:text-[11px] font-bold">${staging.count}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-sky-600">${staging.countAtt0}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-amber-600">${staging.countAtt1}</span></td>`;
                         stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-orange-600">${staging.countAtt2}</span></td>`;
                     stgRowCols += `<td class="${tdStyle}"><span class="font-semibold text-rose-600">${staging.countAtt3Plus}</span></td>`;
                 } else {
                     const stgC92 = staging.fops['92'] ? staging.fops['92'].count : 0;
-                    stgRowCols += `<td class="${tdStyle} bg-cyan-50/10 border-x border-cyan-200"><span class="${stgC92>0 ? 'text-cyan-600 font-semibold' : 'text-slate-300'} text-xs">${stgC92 > 0 ? stgC92 : '-'}</span></td>`;
+                    stgRowCols += `<td class="${tdStyle} bg-cyan-50/10 border-x border-cyan-200"><span class="${stgC92>0 ? 'text-cyan-600 font-semibold' : 'text-slate-300'} text-[11px] sm:text-xs">${stgC92 > 0 ? stgC92 : '-'}</span></td>`;
 
                     stgRowCols += `<td class="${tdStyle} bg-rose-50/10 border-l border-rose-100"><span class="font-semibold text-rose-700">${staging.countWarning}</span></td>`;
                     stgRowCols += window.warningFops.map(fop => {
                             const count = staging.fops[fop] ? staging.fops[fop].count : 0;
-                            return `<td class="${tdStyle} border-x border-rose-50"><span class="${count>0 ? 'text-rose-600 font-semibold' : 'text-slate-300'} text-xs">${count > 0 ? count : '-'}</span></td>`;
+                            return `<td class="${tdStyle} border-x border-rose-50"><span class="${count>0 ? 'text-rose-600 font-semibold' : 'text-slate-300'} text-[11px] sm:text-xs">${count > 0 ? count : '-'}</span></td>`;
                         }).join('');
 
                         stgRowCols += `<td class="${tdStyle} bg-sky-50/10 border-l border-sky-100"><span class="font-semibold text-sky-700">${staging.countPending}</span></td>`;
                         stgRowCols += window.pendingFops.map(fop => {
                             const count = staging.fops[fop] ? staging.fops[fop].count : 0;
-                            return `<td class="${tdStyle} border-x border-sky-50"><span class="${count>0 ? 'text-sky-600 font-semibold' : 'text-slate-300'} text-xs">${count > 0 ? count : '-'}</span></td>`;
+                            return `<td class="${tdStyle} border-x border-sky-50"><span class="${count>0 ? 'text-sky-600 font-semibold' : 'text-slate-300'} text-[11px] sm:text-xs">${count > 0 ? count : '-'}</span></td>`;
                         }).join('');
                     }
 
                     html += `
                         <tr class="bg-blue-50/20 hidden child-of-hub_${hIdx} cursor-pointer hover:bg-blue-50 group border-b border-slate-100" onclick="toggleLevel('hub_${hIdx}_stg_${sIdx}')" id="hub_${hIdx}_stg_${sIdx}">
-                            <td class="${tdStickyLeft} bg-[#f9fafb] group-hover:bg-blue-50 transition-colors pl-6">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-4 h-4 flex items-center justify-center bg-white rounded border border-blue-200">
+                            <td class="${tdStickyLeft} bg-[#f9fafb] group-hover:bg-blue-50 transition-colors pl-4 sm:pl-6">
+                                <div class="flex items-center gap-1.5 md:gap-2 overflow-hidden min-w-0">
+                                    <div class="w-3 h-3 md:w-4 md:h-4 flex items-center justify-center bg-white rounded border border-blue-200 shrink-0">
                                         <i class="chevron ph-bold ph-caret-right text-blue-500 text-[8px]"></i>
                                     </div>
-                                    <i class="ph-fill ph-map-pin text-blue-400 text-sm"></i>
-                                    <span class="font-semibold text-slate-700 text-[11px]">${staging.name}</span>
+                                    <i class="ph-fill ph-map-pin text-blue-400 text-sm shrink-0 hidden sm:block"></i>
+                                    <span class="font-semibold text-slate-700 text-[10px] md:text-[11px] truncate block">${staging.name}</span>
                                 </div>
                             </td>
                             ${stgRowCols}
@@ -1236,19 +1242,19 @@
 
                         html += `
                             <tr class="hidden child-of-hub_${hIdx}_stg_${sIdx} descendant-of-hub_${hIdx} hover:bg-slate-50/80 bg-white border-b border-slate-50 transition-colors">
-                                <td class="${tdStickyLeft} pl-10 bg-white hover:bg-slate-50/80">
-                                    <div class="flex items-center justify-between group/name">
-                                        <div class="flex items-center gap-2.5">
-                                            <div class="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
+                                <td class="${tdStickyLeft} pl-6 sm:pl-10 bg-white hover:bg-slate-50/80">
+                                    <div class="flex items-center justify-between group/name gap-1 w-full min-w-0">
+                                        <div class="flex items-center gap-1.5 sm:gap-2.5 overflow-hidden min-w-0">
+                                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0 shadow-sm hidden sm:flex">
                                                 <i class="ph-fill ph-user text-[11px]"></i>
                                             </div>
-                                            <div class="flex flex-col">
-                                                <span class="font-bold text-slate-800 text-[11px] leading-tight group-hover/name:text-blue-600 transition-colors">${op.nama}</span>
-                                                <span class="text-[9px] text-slate-400 font-mono mt-0.5 tracking-wider bg-slate-100 px-1 rounded inline-block w-fit">${op.nik}</span>
+                                            <div class="flex flex-col overflow-hidden min-w-0">
+                                                <span class="font-bold text-slate-800 text-[10px] sm:text-[11px] leading-tight group-hover/name:text-blue-600 transition-colors truncate block">${op.nama}</span>
+                                                <span class="text-[8px] sm:text-[9px] text-slate-400 font-mono mt-0.5 tracking-wider bg-slate-100 px-1 rounded inline-block w-fit truncate">${op.nik}</span>
                                             </div>
                                         </div>
-                                        <button onclick="copyAllNikWA(${hIdx}, ${sIdx}, ${nIdx}, this)" class="w-6 h-6 flex items-center justify-center rounded text-slate-400 hover:bg-blue-100 hover:text-blue-600 transition-all active:scale-95" title="Salin semua resi NIK ini">
-                                            <i class="ph ph-copy text-base"></i>
+                                        <button onclick="copyAllNikWA(${hIdx}, ${sIdx}, ${nIdx}, this)" class="w-6 h-6 shrink-0 flex items-center justify-center rounded text-slate-400 hover:bg-blue-100 hover:text-blue-600 transition-all active:scale-95" title="Salin semua resi NIK ini">
+                                            <i class="ph ph-copy text-sm sm:text-base"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -1307,7 +1313,6 @@
             executeCopy(text, btnElement, '<i class="ph-fill ph-check-circle text-emerald-500 text-base"></i>', 'bg-emerald-50 text-emerald-600');
         };
 
-        // Fungsi BARU untuk menyalin seluruh FOP Pending dari satu Operator
         window.copyAllPendingWA = function(hIdx, sIdx, nIdx, btnElement) {
             const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
             const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
@@ -1403,7 +1408,6 @@
                     const oClass = btnElement.className;
                     btnElement.innerHTML = successHtml;
                     if(successClass) {
-                        // Strip old color classes to prevent conflict
                         btnElement.className = btnElement.className.replace(/bg-\w+-\d+/g, '').replace(/text-\w+-\d+/g, '').replace(/border-\w+-\d+/g, '').replace(/hover:bg-\w+-\d+/g, '').replace(/hover:border-\w+-\d+/g, '');
                         btnElement.className += ` ${successClass} pointer-events-none scale-105`;
                     }

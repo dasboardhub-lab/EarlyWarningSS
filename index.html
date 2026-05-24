@@ -1014,9 +1014,9 @@
             theadHtml = `
                 <tr class="bg-slate-50">
                     <th rowspan="2" class="${thStickyLeft} bg-slate-50">${stickyHeaderName}</th>
-                    <th colspan="1" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-cyan-800 bg-cyan-100/50 border-x border-cyan-200">Kat. Freeze</th>
-                    <th colspan="${1 + window.warningFops.length}" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-rose-800 bg-rose-100/50 border-x border-rose-200">Kat. Warning</th>
-                    <th colspan="${1 + window.pendingFops.length}" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-sky-800 bg-sky-100/50 border-x border-sky-200">Kat. Pending</th>
+                    <th colspan="1" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-cyan-800 bg-cyan-100/50 border-x border-cyan-200">Freeze</th>
+                    <th colspan="${1 + window.warningFops.length}" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-rose-800 bg-rose-100/50 border-x border-rose-200">Warning</th>
+                    <th colspan="${1 + window.pendingFops.length}" class="px-2 sm:px-3 py-1 sm:py-1.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-sky-800 bg-sky-100/50 border-x border-sky-200">Pending</th>
                 </tr>
                 <tr class="bg-slate-50">
                     <th class="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-center text-cyan-700 bg-cyan-50 border-x border-cyan-200">92</th>
@@ -1297,19 +1297,55 @@
         };
 
         window.copyAllNikWA = function(hIdx, sIdx, nIdx, btnElement) {
+            const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
             const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
-            let allAwbs = [];
             
-            if (window.currentView === 'WARNING_STUCK') {
-                 Object.keys(op.warningStuck.fops).forEach(fop => {
-                     allAwbs = allAwbs.concat(op.warningStuck.fops[fop].awbs);
-                 });
-                 if(allAwbs.length === 0) return showToast('Tidak ada resi Warning Stuck di NIK ini', 'error');
+            let totalAwbs = 0;
+            let groupText = "";
+
+            const addGroup = (title, awbsArray) => {
+                if (awbsArray && awbsArray.length > 0) {
+                    totalAwbs += awbsArray.length;
+                    groupText += `\n*${title}* (${awbsArray.length} Paket):\n${formatAwbList(awbsArray)}\n`;
+                }
+            };
+
+            if (window.currentView === 'COD') {
+                addGroup("COD YES", op.codYes.awbs);
+                addGroup("COD NO", op.codNo.awbs);
+            } else if (window.currentView === 'ATTEMPT') {
+                addGroup("ATT 0", op.att0.awbs);
+                addGroup("ATT 1", op.att1.awbs);
+                addGroup("ATT 2", op.att2.awbs);
+                addGroup("ATT 3+", op.att3Plus.awbs);
+            } else if (window.currentView === 'TARGET') {
+                addGroup("Over SLA", op.target.overSla.awbs);
+                addGroup("Last Day", op.target.lastDay.awbs);
+                addGroup("Sameday", op.target.sameday.awbs);
+                addGroup("> 2 Hari", op.target.more2Days.awbs);
+            } else if (window.currentView === 'WARNING_STUCK') {
+                window.warningFops.forEach(fop => {
+                    if (op.warningStuck.fops[fop]) addGroup(`WARNING STUCK FOP ${fop}`, op.warningStuck.fops[fop].awbs);
+                });
+            } else if (window.currentView === 'TOP_PENDING') {
+                window.pendingFops.forEach(fop => {
+                    if (op.fops[fop]) addGroup(`PENDING FOP ${fop}`, op.fops[fop].awbs);
+                });
             } else {
-                 allAwbs = [...op.codYes.awbs, ...op.codNo.awbs];
+                // Tampilan FOP Default
+                if (op.fops['92']) addGroup("FREEZE FOP 92", op.fops['92'].awbs);
+                window.warningFops.forEach(fop => {
+                    if (op.fops[fop]) addGroup(`WARNING FOP ${fop}`, op.fops[fop].awbs);
+                });
+                window.pendingFops.forEach(fop => {
+                    if (op.fops[fop]) addGroup(`PENDING FOP ${fop}`, op.fops[fop].awbs);
+                });
             }
 
-            const text = `*INFO PAKET GANTUNG*\n\nHalo tim *${window.dashboardData[hIdx].stagings[sIdx].name}*,\n\nTerdapat *${allAwbs.length}* paket yang masih gantung di kurir:\n👤 *${op.nama}*\n🆔 ${op.nik}\n\nMohon bantuan untuk segera diproses.\n\n*Daftar AWB:*\n${formatAwbList(allAwbs)}\n\nTerima kasih. 🙏`;
+            if (totalAwbs === 0) return showToast('Tidak ada resi untuk disalin di kategori ini', 'error');
+
+            const text = `*INFO PAKET GANTUNG*\n\nHalo tim *${stgName}*,\n\nTerdapat *${totalAwbs}* paket yang masih gantung di kurir:\n👤 *${op.nama}*\n🆔 ${op.nik}\n\nMohon bantuan untuk segera diproses.\n${groupText}\nTerima kasih. 🙏`;
+            
             executeCopy(text, btnElement, '<i class="ph-fill ph-check-circle text-emerald-500 text-base"></i>', 'bg-emerald-50 text-emerald-600');
         };
 
@@ -1317,17 +1353,23 @@
             const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
             const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
             
-            let allPendingAwbs = [];
+            let totalPending = 0;
+            let groupText = "";
+
+            const addGroup = (title, awbsArray) => {
+                if (awbsArray && awbsArray.length > 0) {
+                    totalPending += awbsArray.length;
+                    groupText += `\n*${title}* (${awbsArray.length} Paket):\n${formatAwbList(awbsArray)}\n`;
+                }
+            };
             
             window.pendingFops.forEach(fop => {
-                if (op.fops[fop]) {
-                    allPendingAwbs = allPendingAwbs.concat(op.fops[fop].awbs);
-                }
+                if (op.fops[fop]) addGroup(`FOP ${fop}`, op.fops[fop].awbs);
             });
             
-            if(allPendingAwbs.length === 0) return showToast('Tidak ada resi pending di NIK ini', 'error');
+            if(totalPending === 0) return showToast('Tidak ada resi pending di NIK ini', 'error');
 
-            const text = `*INFO PAKET GANTUNG*\n\nHalo tim *${stgName}*,\n\nTerdapat *${allPendingAwbs.length}* paket (Status Pending) yang masih gantung di kurir:\n👤 *${op.nama}*\n🆔 ${op.nik}\n\nMohon bantuan untuk segera diproses.\n\n*Daftar AWB:*\n${formatAwbList(allPendingAwbs)}\n\nTerima kasih. 🙏`;
+            const text = `*INFO PAKET PENDING*\n\nHalo tim *${stgName}*,\n\nTerdapat *${totalPending}* paket (Status Pending) yang masih gantung di kurir:\n👤 *${op.nama}*\n🆔 ${op.nik}\n\nMohon bantuan untuk segera diproses.\n${groupText}\nTerima kasih. 🙏`;
             
             executeCopy(text, btnElement, '<i class="ph-bold ph-check"></i>', 'bg-sky-500 text-white border-sky-600 shadow-sky-500/30');
         };

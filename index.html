@@ -88,7 +88,7 @@
             </div>
         </header>
 
-        <!-- FITUR FILTER (BARU) -->
+        <!-- FITUR FILTER -->
         <div id="filterSection" class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 hidden flex-col xl:flex-row gap-3 xl:items-end relative z-40">
             
             <!-- Filter Tanggal -->
@@ -539,6 +539,15 @@
         }
 
         // --- FILTER UI & LOGIC CASCADING ---
+
+        // Fungsi baru untuk menutup semua dropdown
+        window.closeAllFilterDropdowns = function() {
+            ['hubDropdown', 'stagingDropdown', 'operatorDropdown'].forEach(d => {
+                const el = document.getElementById(d);
+                if (el) el.classList.add('hidden');
+            });
+        };
+
         window.toggleFilterDropdown = function(e, id) {
             e.stopPropagation();
             ['hubDropdown', 'stagingDropdown', 'operatorDropdown'].forEach(d => {
@@ -549,10 +558,7 @@
 
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.relative')) {
-                ['hubDropdown', 'stagingDropdown', 'operatorDropdown'].forEach(d => {
-                    const el = document.getElementById(d);
-                    if (el) el.classList.add('hidden');
-                });
+                closeAllFilterDropdowns();
             }
         });
 
@@ -714,6 +720,9 @@
         };
 
         window.resetFilters = function() {
+            // Tutup semua dropdown menu
+            closeAllFilterDropdowns();
+
             document.getElementById('filterStartDate').value = '';
             document.getElementById('filterEndDate').value = '';
             window.activeFilters = { startDate: '', endDate: '', hubs: [], stagings: [], operators: [] };
@@ -723,6 +732,9 @@
 
         // Menggantikan processData saat penerapan filter
         window.applyAllFiltersAndRender = function() {
+            // Tutup semua dropdown menu saat tombol terapkan diklik
+            closeAllFilterDropdowns();
+
             let data = window.rawParsedData;
 
             // 1. Settings Filter Base

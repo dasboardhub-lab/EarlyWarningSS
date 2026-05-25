@@ -540,7 +540,6 @@
 
         // --- FILTER UI & LOGIC CASCADING ---
 
-        // Fungsi baru untuk menutup semua dropdown
         window.closeAllFilterDropdowns = function() {
             ['hubDropdown', 'stagingDropdown', 'operatorDropdown'].forEach(d => {
                 const el = document.getElementById(d);
@@ -720,9 +719,7 @@
         };
 
         window.resetFilters = function() {
-            // Tutup semua dropdown menu
             closeAllFilterDropdowns();
-
             document.getElementById('filterStartDate').value = '';
             document.getElementById('filterEndDate').value = '';
             window.activeFilters = { startDate: '', endDate: '', hubs: [], stagings: [], operators: [] };
@@ -730,9 +727,7 @@
             applyAllFiltersAndRender();
         };
 
-        // Menggantikan processData saat penerapan filter
         window.applyAllFiltersAndRender = function() {
-            // Tutup semua dropdown menu saat tombol terapkan diklik
             closeAllFilterDropdowns();
 
             let data = window.rawParsedData;
@@ -1507,12 +1502,17 @@
                     html += `
                         <tr class="bg-blue-50/20 hidden child-of-hub_${hIdx} cursor-pointer hover:bg-blue-50 group border-b border-slate-100" onclick="toggleLevel('hub_${hIdx}_stg_${sIdx}')" id="hub_${hIdx}_stg_${sIdx}">
                             <td class="${tdStickyLeft} bg-[#f9fafb] group-hover:bg-blue-50 transition-colors pl-4 sm:pl-6">
-                                <div class="flex items-center gap-1.5 md:gap-2 overflow-hidden min-w-0">
-                                    <div class="w-3 h-3 md:w-4 md:h-4 flex items-center justify-center bg-white rounded border border-blue-200 shrink-0">
-                                        <i class="chevron ph-bold ph-caret-right text-blue-500 text-[8px]"></i>
+                                <div class="flex items-center justify-between gap-1 w-full min-w-0">
+                                    <div class="flex items-center gap-1.5 md:gap-2 overflow-hidden min-w-0">
+                                        <div class="w-3 h-3 md:w-4 md:h-4 flex items-center justify-center bg-white rounded border border-blue-200 shrink-0">
+                                            <i class="chevron ph-bold ph-caret-right text-blue-500 text-[8px]"></i>
+                                        </div>
+                                        <i class="ph-fill ph-map-pin text-blue-400 text-sm shrink-0 hidden sm:block"></i>
+                                        <span class="font-semibold text-slate-700 text-[10px] md:text-[11px] truncate block">${staging.name}</span>
                                     </div>
-                                    <i class="ph-fill ph-map-pin text-blue-400 text-sm shrink-0 hidden sm:block"></i>
-                                    <span class="font-semibold text-slate-700 text-[10px] md:text-[11px] truncate block">${staging.name}</span>
+                                    <button onclick="copyAllStagingWA(event, ${hIdx}, ${sIdx}, this)" class="w-6 h-6 shrink-0 flex items-center justify-center rounded text-blue-400 hover:bg-blue-100 hover:text-blue-700 transition-all active:scale-95" title="Salin semua resi di Staging ini">
+                                        <i class="ph ph-copy text-sm sm:text-base"></i>
+                                    </button>
                                 </div>
                             </td>
                             ${stgRowCols}
@@ -1616,6 +1616,54 @@
             }
         };
 
+        window.copyAllStagingWA = function(event, hIdx, sIdx, btnElement) {
+            event.stopPropagation();
+            const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
+            const operators = window.dashboardData[hIdx].stagings[sIdx].operators;
+            
+            let totalAwbs = 0;
+            let groupText = "";
+
+            operators.forEach(op => {
+                let opAwbs = [];
+                
+                if (window.currentView === 'COD') {
+                    opAwbs = [...op.codYes.awbs, ...op.codNo.awbs];
+                } else if (window.currentView === 'ATTEMPT') {
+                    opAwbs = [...op.att0.awbs, ...op.att1.awbs, ...op.att2.awbs, ...op.att3Plus.awbs];
+                } else if (window.currentView === 'TARGET') {
+                    opAwbs = [...op.target.overSla.awbs, ...op.target.lastDay.awbs, ...op.target.sameday.awbs, ...op.target.more2Days.awbs];
+                } else if (window.currentView === 'WARNING_STUCK') {
+                    window.warningFops.forEach(fop => {
+                        if (op.warningStuck.fops[fop]) opAwbs = opAwbs.concat(op.warningStuck.fops[fop].awbs);
+                    });
+                } else if (window.currentView === 'TOP_PENDING') {
+                    window.pendingFops.forEach(fop => {
+                        if (op.fops[fop]) opAwbs = opAwbs.concat(op.fops[fop].awbs);
+                    });
+                } else {
+                    if (op.fops['92']) opAwbs = opAwbs.concat(op.fops['92'].awbs);
+                    window.warningFops.forEach(fop => {
+                        if (op.fops[fop]) opAwbs = opAwbs.concat(op.fops[fop].awbs);
+                    });
+                    window.pendingFops.forEach(fop => {
+                        if (op.fops[fop]) opAwbs = opAwbs.concat(op.fops[fop].awbs);
+                    });
+                }
+
+                if (opAwbs.length > 0) {
+                    totalAwbs += opAwbs.length;
+                    groupText += `\n👤 *${op.nama}* (${op.nik})\n${formatAwbList(opAwbs)}\n`;
+                }
+            });
+
+            if (totalAwbs === 0) return showToast('Tidak ada resi untuk disalin pada staging ini', 'error');
+
+            const text = `*INFO PAKET GANTUNG*\n\nHalo tim *${stgName}*,\n\nTerdapat *${totalAwbs}* paket yang masih gantung.\n\nBerikut rincian resi berdasarkan kurir:${groupText}\nMohon bantuan untuk segera diproses.\nTerima kasih. 🙏`;
+            
+            executeCopy(text, btnElement, '<i class="ph-fill ph-check-circle text-blue-500 text-base"></i>', 'bg-blue-50 text-blue-600 pointer-events-none scale-105');
+        };
+
         window.copyAllNikWA = function(hIdx, sIdx, nIdx, btnElement) {
             const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
             const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
@@ -1694,6 +1742,7 @@
             executeCopy(text, btnElement, '<i class="ph-bold ph-check"></i>', 'bg-sky-500 text-white border-sky-600 shadow-sky-500/30');
         };
 
+        // METHOD YANG DIPERBAIKI (TIDAK ADA LAGI ERROR TYPE-MAPPING)
         window.copyDirectWA = function(hIdx, sIdx, nIdx, type, category, btnElement) {
             const stgName = window.dashboardData[hIdx].stagings[sIdx].name;
             const op = window.dashboardData[hIdx].stagings[sIdx].operators[nIdx];
@@ -1703,15 +1752,26 @@
                 dataObj = type === 'YES' ? op.codYes : op.codNo;
                 labelText = `COD: ${type}`;
             } else if (category === 'ATT') {
-                const mapAtt = {'ATT0':'0', 'ATT1':'1', 'ATT2':'2', 'ATT3PLUS':'3+'};
-                dataObj = op[type.toLowerCase()]; labelText = `Attempt: ${mapAtt[type]}`;
+                // Perbaikan: Mapping akurat untuk string object (att3Plus bukan att3plus)
+                const mapAttObj = {'ATT0':'att0', 'ATT1':'att1', 'ATT2':'att2', 'ATT3PLUS':'att3Plus'};
+                const mapAttLabel = {'ATT0':'0', 'ATT1':'1', 'ATT2':'2', 'ATT3PLUS':'3+'};
+                dataObj = op[mapAttObj[type]]; 
+                labelText = `Attempt: ${mapAttLabel[type]}`;
             } else if (category === 'TARGET') {
                 dataObj = op.target[type]; 
                 labelText = type === 'overSla' ? 'Over SLA' : type === 'lastDay' ? 'Last Day' : type === 'sameday' ? 'Sameday' : '> 2 Hari';
             } else if (category === 'WARNING_STUCK') {
-                dataObj = op.warningStuck.fops[type]; labelText = `Warning Stuck FOP: ${type}`;
+                dataObj = op.warningStuck.fops[type]; 
+                labelText = `Warning Stuck FOP: ${type}`;
             } else {
-                dataObj = op.fops[type]; labelText = type === '92' ? `FOP: ${type} (Freeze)` : `FOP: ${type}`;
+                dataObj = op.fops[type]; 
+                labelText = type === '92' ? `FOP: ${type} (Freeze)` : `FOP: ${type}`;
+            }
+
+            // Failsafe Guard
+            if (!dataObj || !dataObj.awbs) {
+                showToast("Maaf, terjadi kesalahan atau data tidak ditemukan", "error");
+                return;
             }
 
             const text = `*INFO PAKET GANTUNG*\n\nHalo tim *${stgName}*,\n\nTerdapat *${dataObj.awbs.length}* paket (*${labelText}*) yang masih gantung di kurir:\n👤 *${op.nama}*\n🆔 ${op.nik}\n\nMohon bantuan untuk segera diproses.\n\n*Daftar AWB:*\n${formatAwbList(dataObj.awbs)}\n\nTerima kasih. 🙏`;
